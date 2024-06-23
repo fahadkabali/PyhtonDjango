@@ -24,18 +24,18 @@ def assessment_view(request):
                 form.save_m2m()
                 responses.append(response)
             else:
-                return render(request, 'assessment.html', {'questions': questions, 'form': form})
+                return render(request, '/assessment/assessment.html', {'questions': questions, 'form': form})
 
         total_score = calculate_total_score(responses)
         feedback = get_feedback(total_score)
         
-        return render(request, 'assessment_result.html', {
+        return render(request, 'assessment/assessment_result.html', {
             'total_score': total_score,
             'feedback': feedback,
         })
     
     form = ResponseForm(question=questions.first())
-    return render(request, 'assessment.html', {
+    return render(request, 'assessment/assessment.html', {
         'questions': questions,
         'form': form,
     })
@@ -48,7 +48,7 @@ def index(request):
     return HttpResponse(html_template.render(context, request))
 
 
-# @login_required(login_url="/login/")
+@login_required(login_url="/login/")
 def pages(request):
     context = {}
     # All resource paths end in .html.
