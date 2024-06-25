@@ -56,7 +56,7 @@ def activate(request,uidb64,token):
         messages.success(request, "Your Account has been activated!!")
         return redirect('login')
     else:
-        return render(request,'activation_failed.html')
+        return render(request,'accounts/activation_failed.html')
     
 
 def login_view(request):
@@ -83,4 +83,4 @@ def login_view(request):
 def user_logout(request):
     logout(request)
     messages.success(request, "Logged out successfully!")
-    return redirect("home")
+    return redirect("/")
