@@ -1,12 +1,12 @@
 
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.mail import EmailMessage, send_mail
 from CSAT import settings
 from .forms import LoginForm, SignUpForm
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from . tokens import generate_token
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
@@ -15,6 +15,7 @@ from django.utils.encoding import force_bytes, force_str
 # from . models import Profile
 # from . forms import ProfilePictureForm
 from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 # from .models import User
 
 
@@ -183,6 +184,42 @@ def user_logout(request):
 
 
 def profile_view(request):
+    user = get_object_or_404(User, admin=request.user)
+    form = UserEditForm(request.POST or None, request.FILES or None,
+                           instance=student)
+    context = {'form': form,
+               'page_title': 'View/Edit Profile'
+               }
+    if request.method == 'POST':
+        try:
+            if form.is_valid():
+                first_name = form.cleaned_data.get('first_name')
+                last_name = form.cleaned_data.get('last_name')
+                password = form.cleaned_data.get('password') or None
+                address = form.cleaned_data.get('address')
+                gender = form.cleaned_data.get('gender')
+                passport = request.FILES.get('profile_pic') or None
+                admin = student.admin
+                if password != None:
+                    admin.set_password(password)
+                if passport != None:
+                    fs = FileSystemStorage()
+                    filename = fs.save(passport.name, passport)
+                    passport_url = fs.url(filename)
+                    admin.profile_pic = passport_url
+                admin.first_name = first_name
+                admin.last_name = last_name
+                admin.address = address
+                admin.gender = gender
+                admin.save()
+                student.save()
+                messages.success(request, "Profile Updated!")
+                return redirect(reverse('student_view_profile'))
+            else:
+                messages.error(request, "Invalid Data Provided")
+        except Exception as e:
+            messages.error(request, "Error Occured While Updating Profile " + str(e))
+
     context = {
         'user': request.user,
     }

@@ -1,5 +1,8 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.hashers import make_password
 from django.db import models
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 # Create your models here.
 
 
@@ -33,10 +36,20 @@ class CustomUserManager(BaseUserManager):
         return user
 
 class CustomUser(AbstractBaseUser):
+
+    GENDER = [("M", "Male"), ("F", "Female")]
+
     username = models.CharField(max_length=20, unique=True)
     fullname = models.CharField(max_length=100)
     organisation_name = models.CharField(max_length=100)
     email = models.EmailField(verbose_name='email address', max_length=255, unique=True)
+    gender = models.CharField(max_length=1, choices=GENDER)
+    profile_pic = models.ImageField()
+    address = models.TextField()
+    # fcm_token = models.TextField(default="")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
     is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
