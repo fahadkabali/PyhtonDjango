@@ -16,7 +16,7 @@
           <div class="card bg-secondary shadow border-0">
             <div class="card-header bg-transparent pb-5">
               <div class="text-muted text-center mt-2 mb-4">
-                Sign UP
+                REGISTER
               </div>
             </div>
             <div class="card-body px-lg-5 py-lg-5">
@@ -35,16 +35,35 @@
                 <form method="POST">
 
                   {% csrf_token %}
-            
                   <div class="form-group">
                     <div class="input-group input-group-alternative mb-3">
                       <div class="input-group-prepend">
-                        <span class="input-group-text"><i class="ni ni-hat-3"></i></span>
+                        <span class="input-group-text"><i class="fa fa-id-card"></i></span>
+                      </div>
+                      {{ form.fullname }}
+                    </div>
+                  </div>
+                  <span class="text-error">{{ form.fullname.errors }}</span>
+
+                  <div class="form-group">
+                    <div class="input-group input-group-alternative mb-3">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="ni ni-single-02"></i></span>
                       </div>
                       {{ form.username }}
                     </div>
                   </div>
                   <span class="text-error">{{ form.username.errors }}</span>
+
+                  <div class="form-group">
+                    <div class="input-group input-group-alternative mb-3">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fa fa-sitemap"></i></span>
+                      </div>
+                      {{ form.organisation_name }}
+                    </div>
+                  </div>
+                  <span class="text-error">{{ form.organisation_name.errors }}</span>
 
                   <div class="form-group">
                     <div class="input-group input-group-alternative mb-3">

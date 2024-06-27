@@ -14,7 +14,7 @@
           <div class="card bg-secondary shadow border-0">
             <div class="card-header bg-transparent pb-5">
               <div class="text-muted text-center mt-2 mb-3">
-                Sign IN
+                LOGIN
               </div>
             </div>
             <div class="card-body px-lg-5 py-lg-5">
@@ -24,7 +24,7 @@
                   <p>{{ msg }}</p>
                 {% else %}
                   <p>
-                    Add your credentials
+                    Login your credentials
                   </p>
                 {% endif %}  
 
@@ -37,9 +37,9 @@
                 <div class="form-group mb-3">
                   <div class="input-group input-group-alternative">
                     <div class="input-group-prepend">
-                      <span class="input-group-text"><i class="ni ni-hat-3"></i></span>
+                      <span class="input-group-text"><i class="ni ni-email-83"></i></span>
                     </div>
-                    {{ form.username }}
+                    {{ form.email}}
                   </div>
                 </div>
                 <div class="form-group">
@@ -57,7 +57,7 @@
                   </label>
                 </div>
                 <div class="text-center">
-                  <button type="submit" class="btn btn-primary my-4">Sign in</button>
+                  <button type="submit" class="btn btn-primary my-4">Login</button>
                 </div>
               </form>
             </div>
