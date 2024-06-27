@@ -179,7 +179,7 @@ def login_view(request):
 def user_logout(request):
     logout(request)
     messages.success(request, "Logged out successfully!")
-    return redirect("login/")
+    return redirect("login")
 
 
 def profile_view(request):
