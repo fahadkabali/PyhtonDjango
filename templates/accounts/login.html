@@ -19,27 +19,19 @@
             </div>
             <div class="card-body px-lg-5 py-lg-5">
               <div class="text-center text-muted mb-4">
-
+                {%if messages%}
                 {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-2" role="alert">
-                    <strong class="text-success">{{ message }}</strong> 
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                <div class="alert alert-warning alert-dismissible fade show mt-2" role="alert">
+                  {{ message }}
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
                 </div>
                 {% endfor %}
-
-                {% if msg %}
-                  <div class="alert alert-danger">{{ msg }}</div>
-                  <!-- <p>{{ msg }}</p> -->
                 {% else %}
-                  <p>
-                    Login your credentials
-                  </p>
+                  <p>Login your credentials</p>
                 {% endif %}  
-
               </div>
-
               <form method="POST">
 
                 {% csrf_token %}

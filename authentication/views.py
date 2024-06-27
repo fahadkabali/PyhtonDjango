@@ -4,7 +4,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.mail import EmailMessage, send_mail
-
 from CSAT import settings
 from .forms import LoginForm, SignUpForm
 from django.urls import reverse_lazy
@@ -15,6 +14,9 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes, force_str
 # from . models import Profile
 # from . forms import ProfilePictureForm
+from django.conf import settings
+# from .models import User
+
 
 
 
@@ -25,6 +27,8 @@ def register_user(request):
     if request.method == "POST":
         form = SignUpForm(request.POST)
         if form.is_valid():
+            fullname = form.cleaned_data.get("fullname")
+            organisation_name = form.cleaned_data.get("organisation_name")
             username = form.cleaned_data.get("username")
             email = form.cleaned_data.get("email")
             password1 = form.cleaned_data.get("password1")
@@ -38,8 +42,8 @@ def register_user(request):
                 messages.error(request, "Email already exists! Please use a different email address.")
                 return redirect('register')
 
-            if len(username) > 3:
-                messages.error(request, "Username must be under 3 characters.")
+            if len(username) > 15:
+                messages.error(request, "Username must be under 15 characters.")
                 return redirect('register')
 
             if password1 != password2:
@@ -50,46 +54,44 @@ def register_user(request):
                 messages.error(request, "Username must be alphanumeric.")
                 return redirect('register')
 
-            form.save()
-            user = authenticate(username=username, password=password1)
+            # Create the user
+            user = User.objects.create_user(username=username, email=email, password=password1, fullname=fullname, organisation_name=organisation_name)
+            user.is_active = False
+            user.save()
 
-            if user is not None:
-                msg = 'User created - please <a href="/login">login</a>.'
-                success = True
+            # Send email confirmation
+            subject = "Welcome to Login!!"
+            message = f"Hello {user.username}!! \nWelcome!! \nThank you for visiting our website.\nWe have also sent you a confirmation email, please confirm your email address.\n\nThanking You"
+            from_email = settings.EMAIL_HOST_USER
+            to_list = [user.email]
+            send_mail(subject, message, from_email, to_list, fail_silently=True)
 
-                # Welcome Email
-                subject = "Welcome to Login!!"
-                message = f"Hello {user.username}!! \nWelcome!! \nThank you for visiting our website.\nWe have also sent you a confirmation email, please confirm your email address.\n\nThanking You"
-                from_email = settings.EMAIL_HOST_USER
-                to_list = [user.email]
-                send_mail(subject, message, from_email, to_list, fail_silently=True)
+            # Email Address Confirmation Email
+            current_site = get_current_site(request)
+            email_subject = "Confirm your Email for Login!!"
+            message2 = render_to_string('email_confirmation.html', {
+                'name': user.username,
+                'domain': current_site.domain,
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'token': generate_token.make_token(user)
+            })
+            email = EmailMessage(
+                email_subject,
+                message2,
+                from_email,
+                to_list,
+            )
+            email.send(fail_silently=True)
 
-                # Email Address Confirmation Email
-                current_site = get_current_site(request)
-                email_subject = "Confirm your Email for Login!!"
-                message2 = render_to_string('email_confirmation.html', {
-                    'name': user.username,
-                    'domain': current_site.domain,
-                    'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                    'token': generate_token.make_token(user)
-                })
-                email = EmailMessage(
-                    email_subject,
-                    message2,
-                    settings.EMAIL_HOST_USER,
-                    [user.email],
-                )
-                email.send(fail_silently=True)
-
-                return redirect("/login/")
-            else:
-                msg = 'Form is not valid'
+            messages.success(request, "Your Account has been created successfully!! Please check your email to confirm your email address in order to activate your account.")
+            return redirect("/login/")
         else:
-            msg = 'Form is not valid'
+            messages.error(request, 'Form is not valid')
     else:
         form = SignUpForm()
 
     return render(request, "accounts/register.html", {"form": form, "msg": msg, "success": success})
+
 
 def activate(request, uidb64, token):
     try:
@@ -106,6 +108,8 @@ def activate(request, uidb64, token):
         return redirect('login')
     else:
         return render(request, 'accounts/activation_failed.html')
+    
+
 # def register_user(request):
 #     msg = None
 #     success = False
@@ -156,17 +160,19 @@ def login_view(request):
     if request.method == "POST":
 
         if form.is_valid():
-            email = form.cleaned_data.get("email")
+            username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password")
-            user = authenticate(email=email, password=password)
+            user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                email=user.email
+                username=user.username
                 return redirect("/")
             else:
-                msg = 'Invalid credentials'
+                messages.error(request,'Invalid credentials')
+                return redirect("login")
         else:
-            msg = 'Error validating the form'
+            messages.error(request,'Error validating the form')
+            return redirect("login")
 
     return render(request, "accounts/login.html", {"form": form, "msg": msg})
 
