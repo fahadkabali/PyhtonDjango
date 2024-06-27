@@ -180,3 +180,10 @@ def user_logout(request):
     logout(request)
     messages.success(request, "Logged out successfully!")
     return redirect("login/")
+
+
+def profile_view(request):
+    context = {
+        'user': request.user,
+    }
+    return render(request, 'home/profile.html', context)

@@ -15,24 +15,21 @@
         
           <div class="card bg-secondary shadow border-0">
             <div class="card-header bg-transparent pb-5">
-              <div class="text-muted text-center mt-2 mb-4">
-                REGISTER
+              <div class="text-muted text-center font-weight-bold mt-4 mb-4">
+                <h2 class="fw-bold">REGISTER</h2>
               </div>
             </div>
             <div class="card-body px-lg-5 py-lg-5">
               <div class="text-center text-muted mb-4">
-                {{form.errors}}
+                {%if messages%}
                 {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show cr" role="alert" >
-                    <strong class="text-danger"> {{ message | safe}}</strong>
-                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+                <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
+                  {{ message | safe}}
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
                 </div>
                 {% endfor %}
-
-                {% if msg %}
-                  <small>{{ msg | safe }}</small>
                 {% else %}
                   Add your credentials
                 {% endif %}  
@@ -52,7 +49,7 @@
                       {{ form.fullname }}
                     </div>
                   </div>
-                  <span class="text-error">{{ form.fullname.errors }}</span>
+                  <span class="text-danger">{{ form.fullname.errors }}</span>
 
                   <div class="form-group">
                     <div class="input-group input-group-alternative mb-3">
@@ -62,7 +59,7 @@
                       {{ form.username }}
                     </div>
                   </div>
-                  <span class="text-error">{{ form.username.errors }}</span>
+                  <span class="text-danger">{{ form.username.errors }}</span>
 
                   <div class="form-group">
                     <div class="input-group input-group-alternative mb-3">
@@ -72,7 +69,7 @@
                       {{ form.organisation_name }}
                     </div>
                   </div>
-                  <span class="text-error">{{ form.organisation_name.errors }}</span>
+                  <span class="text-danger">{{ form.organisation_name.errors }}</span>
 
                   <div class="form-group">
                     <div class="input-group input-group-alternative mb-3">
@@ -82,7 +79,7 @@
                       {{ form.email }}
                     </div>
                   </div>
-                  <span class="text-error">{{ form.email.errors }}</span>
+                  <span class="text-danger">{{ form.email.errors }}</span>
 
                   <div class="form-group">
                     <div class="input-group input-group-alternative">
@@ -92,7 +89,7 @@
                       {{ form.password1 }}
                     </div>
                   </div>
-                  <span class="text-error">{{ form.password1.errors }}</span>
+                  <span class="text-danger">{{ form.password1.errors }}</span>
 
                   <div class="form-group">
                     <div class="input-group input-group-alternative">
@@ -102,7 +99,7 @@
                       {{ form.password2 }}
                     </div>
                   </div>
-                  <span class="text-error">{{ form.password2.errors }}</span>
+                  <span class="text-danger">{{ form.password2.errors }}</span>
 
                   <div class="row my-4">
                     <div class="col-12">
