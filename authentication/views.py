@@ -1,7 +1,8 @@
 
+from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.core.mail import EmailMessage, send_mail
 from CSAT import settings
@@ -17,6 +18,9 @@ from django.core.files.storage import FileSystemStorage
 from .forms import *
 from .models import *
 
+User = get_user_model()
+
+
 #registration account view
 def register_user(request):
     if request.method == "POST":
@@ -28,7 +32,7 @@ def register_user(request):
             email = form.cleaned_data.get("email")
             password1 = form.cleaned_data.get("password1")
             password2 = form.cleaned_data.get("password2")
-
+            
             if User.objects.filter(username=username).exists():
                 messages.error(request, "Username already exists! Please try a different username.")
                 return redirect('register')
@@ -48,10 +52,13 @@ def register_user(request):
             if not username.isalnum():
                 messages.error(request, "Username must be alphanumeric.")
                 return redirect('register')
-
-            user = User.objects.create_user(username=username, email=email, password=password1, fullname=fullname, organisation_name=organisation_name)
-            user.is_active = False
-            user.save()
+            try:
+                user = User.objects.create_user(username=username, email=email, password=password1, fullname=fullname, organisation_name=organisation_name)
+                user.is_active = False
+                user.save()
+            except IntegrityError:
+                messages.error(request, "An error occurred during registration. Please try again.")
+                return redirect('register')
 
             subject = "Welcome to Login!!"
             message = f"Hello {user.username}!! \nWelcome!! \nThank you for visiting our website.\nWe have also sent you a confirmation email, please confirm your email address.\n\nThanking You"
@@ -61,7 +68,7 @@ def register_user(request):
 
             current_site = get_current_site(request)
             email_subject = "Confirm your Email for Login!!"
-            message2 = render_to_string('email_confirmation.html', {
+            message2 = render_to_string('accounts/email_confirmation.html', {
                 'name': user.username,
                 'domain': current_site.domain,
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
@@ -71,7 +78,7 @@ def register_user(request):
             email.send(fail_silently=True)
 
             messages.success(request, "Your Account has been created successfully!! Please check your email to confirm your email address in order to activate your account.")
-            return redirect("/login/")
+            return redirect("login")
         else:
             messages.error(request, 'Form is not valid')
     else:
@@ -84,7 +91,7 @@ def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         myuser = User.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+    except (TypeError, ValueError, OverflowError, settings.AUTH_USER_MODEL.DoesNotExist):
         myuser = None
 
     if myuser is not None and generate_token.check_token(myuser, token):

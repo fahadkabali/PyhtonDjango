@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from CSAT import settings
+
 class Question(models.Model):
     SINGLE_CHOICE = 'SC'
     MULTIPLE_CHOICE = 'MC'
@@ -31,7 +33,7 @@ class Choice(models.Model):
         return f"{self.text} ({self.percentage}%)"
 
 class Response(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     selected_choices = models.ManyToManyField(Choice, blank=True)
     open_ended_response = models.TextField(blank=True, null=True)
