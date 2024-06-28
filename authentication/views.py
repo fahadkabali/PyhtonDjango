@@ -12,20 +12,13 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes, force_str
-# from . models import Profile
-# from . forms import ProfilePictureForm
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from .forms import *
-# from .models import User
+from .models import *
 
-
-
-
+#registration account view
 def register_user(request):
-    msg = None
-    success = False
-
     if request.method == "POST":
         form = SignUpForm(request.POST)
         if form.is_valid():
@@ -56,19 +49,16 @@ def register_user(request):
                 messages.error(request, "Username must be alphanumeric.")
                 return redirect('register')
 
-            # Create the user
             user = User.objects.create_user(username=username, email=email, password=password1, fullname=fullname, organisation_name=organisation_name)
             user.is_active = False
             user.save()
 
-            # Send email confirmation
             subject = "Welcome to Login!!"
             message = f"Hello {user.username}!! \nWelcome!! \nThank you for visiting our website.\nWe have also sent you a confirmation email, please confirm your email address.\n\nThanking You"
             from_email = settings.EMAIL_HOST_USER
             to_list = [user.email]
             send_mail(subject, message, from_email, to_list, fail_silently=True)
 
-            # Email Address Confirmation Email
             current_site = get_current_site(request)
             email_subject = "Confirm your Email for Login!!"
             message2 = render_to_string('email_confirmation.html', {
@@ -77,12 +67,7 @@ def register_user(request):
                 'uid': urlsafe_base64_encode(force_bytes(user.pk)),
                 'token': generate_token.make_token(user)
             })
-            email = EmailMessage(
-                email_subject,
-                message2,
-                from_email,
-                to_list,
-            )
+            email = EmailMessage(email_subject, message2, from_email, to_list)
             email.send(fail_silently=True)
 
             messages.success(request, "Your Account has been created successfully!! Please check your email to confirm your email address in order to activate your account.")
@@ -92,9 +77,9 @@ def register_user(request):
     else:
         form = SignUpForm()
 
-    return render(request, "accounts/register.html", {"form": form, "msg": msg, "success": success})
+    return render(request, "accounts/register.html", {"form": form})
 
-
+#view for account activation
 def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -110,87 +95,39 @@ def activate(request, uidb64, token):
         return redirect('login')
     else:
         return render(request, 'accounts/activation_failed.html')
-    
 
-# def register_user(request):
-#     msg = None
-#     success = False
-
-#     if request.method == "POST":
-#         form = SignUpForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             email = form.cleaned_data.get("email")
-#             raw_password = form.cleaned_data.get("password1")
-#             user = authenticate(email=email, password=raw_password)
-
-#             msg = 'User created - please <a href="/login">login</a>.'
-#             success = True
-
-#             return redirect("/login/")
-
-#         else:
-#             msg = 'Form is not valid'
-#     else:
-#         form = SignUpForm()
-
-#     return render(request, "accounts/register.html", {"form": form, "msg": msg, "success": success})
-
-# def activate(request,uidb64,token):
-#     try:
-#         uid = force_str(urlsafe_base64_decode(uidb64))
-#         myuser = User.objects.get(pk=uid)
-#     except (TypeError,ValueError,OverflowError,User.DoesNotExist):
-#         myuser = None
-
-#     if myuser is not None and generate_token.check_token(myuser,token):
-#         myuser.is_active = True
-#         # user.profile.signup_confirmation = True
-#         myuser.save()
-#         login(request,myuser)
-#         messages.success(request, "Your Account has been activated!!")
-#         return redirect('login')
-#     else:
-#         return render(request,'accounts/activation_failed.html')
-    
-
+#login view for registered users
 def login_view(request):
     form = LoginForm(request.POST or None)
-
-    msg = None
-
     if request.method == "POST":
-
         if form.is_valid():
             username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password")
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                username=user.username
                 return redirect("/")
             else:
-                messages.error(request,'Invalid credentials')
+                messages.error(request, 'Invalid credentials')
                 return redirect("login")
         else:
-            messages.error(request,'Error validating the form')
+            messages.error(request, 'Error validating the form')
             return redirect("login")
 
-    return render(request, "accounts/login.html", {"form": form, "msg": msg})
+    return render(request, "accounts/login.html", {"form": form})
 
+# logout view for users
 def user_logout(request):
     logout(request)
     messages.success(request, "Logged out successfully!")
     return redirect("login")
 
-
+#view for the profile editing and view
 def profile_view(request):
-    user = get_object_or_404(User, admin=request.user)
-    form = UserEditForm(request.POST or None, request.FILES or None,
-                           instance=user)
-    context = {'form': form,
-               'page_title': 'View/Edit Profile'
-               }
+    user = get_object_or_404(CustomUser, pk=request.user.pk)
+    form = UserProfileForm(request.POST or None, request.FILES or None, instance=user)
+    context = {'form': form, 'page_title': 'View/Edit Profile'}
+
     if request.method == 'POST':
         try:
             if form.is_valid():
@@ -201,31 +138,50 @@ def profile_view(request):
                 password = form.cleaned_data.get('password') or None
                 address = form.cleaned_data.get('address')
                 gender = form.cleaned_data.get('gender')
-                passport = request.FILES.get('profile_pic') or None
-                admin = user.admin
-                if password != None:
-                    admin.set_password(password)
-                if passport != None:
+                profile_pic = request.FILES.get('profile_pic') or None
+                
+                if password:
+                    user.set_password(password)
+                if profile_pic:
                     fs = FileSystemStorage()
-                    filename = fs.save(passport.name, passport)
-                    passport_url = fs.url(filename)
-                    admin.profile_pic = passport_url
-                admin.first_name = first_name
-                admin.last_name = last_name
-                admin.username=username
-                admin.organisation_name =organisation_name
-                admin.address = address
-                admin.gender = gender
-                admin.save()
+                    filename = fs.save(profile_pic.name, profile_pic)
+                    profile_pic_url = fs.url(filename)
+                    user.profile_pic = profile_pic_url
+
+                user.first_name = first_name
+                user.last_name = last_name
+                user.username = username
+                user.organisation_name = organisation_name
+                user.address = address
+                user.gender = gender
                 user.save()
+                
                 messages.success(request, "Profile Updated!")
-                return redirect(reverse('student_view_profile'))
+                return redirect(reverse('profile'))
             else:
                 messages.error(request, "Invalid Data Provided")
         except Exception as e:
-            messages.error(request, "Error Occured While Updating Profile " + str(e))
+            messages.error(request, "Error Occurred While Updating Profile " + str(e))
 
-    context = {
-        'user': request.user,
-    }
-    return render(request, 'home/profile.html', context)
+    context = {'form': form, 'user': request.user}
+    return render(request, 'accounts/profile.html', context)
+
+#view for ddeleting user account
+def delete_account_view(request):
+    if request.method == 'POST':
+        form = AccountDeletionForm(request.POST)
+        if form.is_valid():
+            reason = form.cleaned_data['reason']
+            feedback = form.cleaned_data['feedback']
+            # You can save the reason and feedback to the database if needed
+            user = request.user
+            user.delete()
+            messages.success(request, "Your account has been deleted.")
+            logout(request)
+            return redirect('home')
+        else:
+            messages.error(request, "Invalid data provided.")
+    else:
+        form = AccountDeletionForm()
+
+    return render(request, 'accounts/delete_account.html', {'form': form})

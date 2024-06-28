@@ -1,8 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
-from django.forms.widgets import DateInput, TextInput
-from .models import *
+from .models import CustomUser
 
 
 class LoginForm(forms.Form):
@@ -30,13 +28,13 @@ class SignUpForm(UserCreationForm):
                 "class": "form-control"
             }
         ))
-    username=forms.CharField(
+    username = forms.CharField(
         widget=forms.TextInput(
             attrs={
                 "placeholder": "Username",
                 "class": "form-control"
             }
-    ))
+        ))
     organisation_name = forms.CharField(
         widget=forms.TextInput(
             attrs={
@@ -51,7 +49,6 @@ class SignUpForm(UserCreationForm):
                 "class": "form-control"
             }
         ))
-    
     password1 = forms.CharField(
         widget=forms.PasswordInput(
             attrs={
@@ -68,16 +65,13 @@ class SignUpForm(UserCreationForm):
         ))
 
     class Meta:
-        model = User
-        fields = ('fullname', 'username','organisation_name', 'email', 'password1', 'password2')
-
-
+        model = CustomUser
+        fields = ('fullname', 'username', 'organisation_name', 'email', 'password1', 'password2')
 
 
 class FormSettings(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(FormSettings, self).__init__(*args, **kwargs)
-        # Here make some changes such as:
         for field in self.visible_fields():
             field.field.widget.attrs['class'] = 'form-control'
 
@@ -87,52 +81,65 @@ class CustomUserForm(FormSettings):
     gender = forms.ChoiceField(choices=[('M', 'Male'), ('F', 'Female')])
     first_name = forms.CharField(required=True)
     last_name = forms.CharField(required=True)
-    username= forms.CharField(required=True)
-    organisation_name= forms.CharField(required=True)
+    username = forms.CharField(required=True)
+    organisation_name = forms.CharField(required=True)
     address = forms.CharField(widget=forms.Textarea)
-    password = forms.CharField(widget=forms.PasswordInput)
-    widget = {
-        'password': forms.PasswordInput(),
-    }
-    profile_pic = forms.ImageField()
+    password = forms.CharField(widget=forms.PasswordInput, required=False)
+    profile_pic = forms.ImageField(required=False)
 
     def __init__(self, *args, **kwargs):
         super(CustomUserForm, self).__init__(*args, **kwargs)
-
         if kwargs.get('instance'):
             instance = kwargs.get('instance').admin.__dict__
-            self.fields['password'].required = False
             for field in CustomUserForm.Meta.fields:
                 self.fields[field].initial = instance.get(field)
-            if self.instance.pk is not None:
-                self.fields['password'].widget.attrs['placeholder'] = "Fill this only if you wish to update password"
+            self.fields['password'].widget.attrs['placeholder'] = "Fill this only if you wish to update password"
 
-    def clean_email(self, *args, **kwargs):
-        formEmail = self.cleaned_data['email'].lower()
+    def clean_email(self):
+        form_email = self.cleaned_data['email'].lower()
         if self.instance.pk is None:  # Insert
-            if CustomUser.objects.filter(email=formEmail).exists():
-                raise forms.ValidationError(
-                    "The given email is already registered")
+            if CustomUser.objects.filter(email=form_email).exists():
+                raise forms.ValidationError("The given email is already registered")
         else:  # Update
-            dbEmail = self.Meta.model.objects.get(
-                id=self.instance.pk).admin.email.lower()
-            if dbEmail != formEmail:  # There has been changes
-                if CustomUser.objects.filter(email=formEmail).exists():
+            db_email = self.Meta.model.objects.get(id=self.instance.pk).admin.email.lower()
+            if db_email != form_email:  # There has been changes
+                if CustomUser.objects.filter(email=form_email).exists():
                     raise forms.ValidationError("The given email is already registered")
 
-        return formEmail
+        return form_email
 
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'username','email','organisation_name' ,'gender',  'password','profile_pic', 'address' ]
+        fields = ['first_name', 'last_name', 'username', 'email', 'organisation_name', 'gender', 'password', 'profile_pic', 'address']
 
 
+#form for editing and updating the user details
 
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['first_name', 'last_name', 'profile_pic', 'gender', 'address', 'organisation_name', 'username', 'email', 'password']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}),
+            'profile_pic': forms.FileInput(attrs={'class': 'form-control'}),
+            'gender': forms.Select(attrs={'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Address'}),
+            'organisation_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Organisation Name'}),
+            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
+            'password': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}),
+        }
+
+class AccountDeletionForm(forms.Form):
+    reason = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Reason for deleting your account', 'rows': 3}), required=True)
+    feedback = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Additional feedback (optional)', 'rows': 3}), required=False)
+    confirm_delete = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}), required=True)
 
 class UserEditForm(CustomUserForm):
     def __init__(self, *args, **kwargs):
         super(UserEditForm, self).__init__(*args, **kwargs)
 
     class Meta(CustomUserForm.Meta):
-        model = User
-        fields = CustomUserForm.Meta.fields 
+        model = CustomUser
+        fields = CustomUserForm.Meta.fields

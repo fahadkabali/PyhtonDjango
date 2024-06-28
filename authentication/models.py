@@ -1,33 +1,39 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.contrib.auth.hashers import make_password
 from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+from django.utils.translation import gettext_lazy as _
+
 # Create your models here.
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, username, email, fullname, organisation_name, password=None):
+    def create_user(self, username, email, fullname, organisation_name, password=None, **extra_fields):
         if not email:
             raise ValueError('Users must have an email address')
+        if not username:
+            raise ValueError(_('The Username field must be set'))
         email = self.normalize_email(email)
         user = self.model(
             username=username,
             email=email,
             fullname=fullname,
             organisation_name=organisation_name,
+            **extra_fields
         )
         user.set_password(password)
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, username, email, fullname, organisation_name, password):
+    def create_superuser(self, username, email, fullname, organisation_name, password=None,**extra_fields):
         user = self.create_user(
             username=username,
             email=email,
             fullname=fullname,
             organisation_name=organisation_name,
             password=password,
+            **extra_fields
         )
         user.is_admin = True
         user.is_staff = True
@@ -35,22 +41,24 @@ class CustomUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-class CustomUser(AbstractBaseUser):
+class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     GENDER = [("M", "Male"), ("F", "Female")]
 
-    username = models.CharField(max_length=20, unique=True)
-    fullname = models.CharField(max_length=100)
-    organisation_name = models.CharField(max_length=100)
+    username = models.CharField(max_length=150, unique=True)
+    fullname = models.CharField(max_length=255)
+    organisation_name = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=30, blank=True)
+    last_name = models.CharField(max_length=30, blank=True)
     email = models.EmailField(verbose_name='email address', max_length=255, unique=True)
     gender = models.CharField(max_length=1, choices=GENDER)
     profile_pic = models.ImageField()
-    address = models.TextField()
-    # fcm_token = models.TextField(default="")
+    address = models.TextField(blank=True)
+    fcm_token = models.TextField(default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
@@ -68,3 +76,44 @@ class CustomUser(AbstractBaseUser):
 
     def has_module_perms(self, app_label):
         return True
+
+
+# from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+# from django.db import models
+# from django.utils.translation import gettext_lazy as _
+
+# class CustomUserManager(BaseUserManager):
+#     def create_user(self, username, email, fullname, organisation_name, password=None, **extra_fields):
+#         if not email:
+#             raise ValueError(_('The Email field must be set'))
+#         if not username:
+#             raise ValueError(_('The Username field must be set'))
+        
+#         email = self.normalize_email(email)
+#         user = self.model(username=username, email=email, fullname=fullname, organisation_name=organisation_name, **extra_fields)
+#         user.set_password(password)
+#         user.save(using=self._db)
+#         return user
+
+#     def create_superuser(self, username, email, fullname, organisation_name, password=None, **extra_fields):
+#         extra_fields.setdefault('is_staff', True)
+#         extra_fields.setdefault('is_superuser', True)
+
+#         return self.create_user(username, email, fullname, organisation_name, password, **extra_fields)
+
+# class CustomUser(AbstractBaseUser, PermissionsMixin):
+#     username = models.CharField(max_length=150, unique=True)
+#     email = models.EmailField(unique=True)
+#     fullname = models.CharField(max_length=255)
+#     organisation_name = models.CharField(max_length=255)
+#     is_active = models.BooleanField(default=True)
+#     is_staff = models.BooleanField(default=False)
+
+#     objects = CustomUserManager()
+
+#     USERNAME_FIELD = 'username'
+#     EMAIL_FIELD = 'email'
+#     REQUIRED_FIELDS = ['email', 'fullname', 'organisation_name']
+
+#     def __str__(self):
+#         return self.username
