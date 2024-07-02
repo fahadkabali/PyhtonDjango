@@ -185,7 +185,7 @@ def delete_account_view(request):
             user.delete()
             messages.success(request, "Your account has been deleted.")
             logout(request)
-            return redirect('home')
+            return redirect('authentication/register')
         else:
             messages.error(request, "Invalid data provided.")
     else:
