@@ -35,6 +35,7 @@ class CustomUserManager(BaseUserManager):
             password=password,
             **extra_fields
         )
+        
         user.is_admin = True
         user.is_staff = True
         user.is_superuser = True
@@ -58,9 +59,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
-    is_active = models.BooleanField(default=False)
-    is_admin = models.BooleanField(default=False)
-    is_staff = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=True)
 
     objects = CustomUserManager()
 
@@ -76,4 +77,5 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def has_module_perms(self, app_label):
         return True
+    
 

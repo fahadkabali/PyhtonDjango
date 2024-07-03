@@ -1,26 +1,114 @@
-{% extends 'layouts/base.html' %}
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assessment Result</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div style="color: { %result.color %}">
+        <p>Your score: {{ result.score }}</p>
+        <p>{{ result.text }}</p>
+        {% if result.score < 80 %}
+            <p>Recommendations for improvement:</p>
+            <ul>
+                {% for recommendation in recommendations %}
+                    <li>{{ recommendation }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </div>
 
-{% block content %}
-<h1>Assessment Result</h1>
-<p>Total Score: {{ total_score }}%</p>
-<p>Feedback: {{ feedback }}</p>
+    <h2>Assessment Performance</h2>
+    <canvas id="lineChart"></canvas>
+    <canvas id="pieChart"></canvas>
+    <canvas id="barChart"></canvas>
 
-<h2>Recommendations</h2>
-<ul>
-    <li>Engage in enterprise dialogue through a top-down approach (that involves ALL staff), by utilizing a comprehensive plan rather than dwelling on risk.</li>
-    <li>Build a strong security culture within the organization by increasing the internal security IQ through awareness and practical training where necessary.</li>
-    <li>Effective communication through an established chain of command within the organization or leading through the crisis by engaging the incident response team.</li>
-</ul>
+    <script>
+        var ctxLine = document.getElementById('lineChart').getContext('2d');
+        var ctxPie = document.getElementById('pieChart').getContext('2d');
+        var ctxBar = document.getElementById('barChart').getContext('2d');
 
-<h2>The Importance of Cyber Security Awareness and Training</h2>
-<ul>
-    <li>This is an investment that prevents greater costs resulting from data breaches that could have been avoided or minimized.</li>
-    <li>Help employees and business owners to understand the need for cyber security and effective incidence response and risk management programs.</li>
-    <li>Help employees to understand and respond appropriately to potential security issues.</li>
-    <li>Provide employees with information on how to avoid fraud, phishing, Identity theft, scams, etc.</li>
-    <li>Enable employees to understand some of the different system vulnerabilities that hackers take advantage of, and help them detect suspicious activities.</li>
-    <li>Help business owners understand the risks associated with lack of cyber security and how to develop economical solutions to reduce these risks.</li>
-    <li>Build a culture of cyber security competence. This motivates employees to incorporate security concerns in their everyday decision making, and to monitor their behavior.</li>
-    <li>Encourage business owners to enhance general compliance with the company’s security standards, policies, and procedures.</li>
-</ul>
-{% endblock %}
+        var questionTexts = question_texts|safe ;
+        var scores = scores|safe;
+        var totalScore = total_score|safe;
+
+        // Line Chart
+        var lineChart = new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: questionTexts,
+                datasets: [{
+                    label: 'Score per Question',
+                    data: scores,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Scores per Question'
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        // Pie Chart
+        var pieChart = new Chart(ctxPie, {
+            type: 'pie',
+            data: {
+                labels: ['Score', 'Remaining'],
+                datasets: [{
+                    data: [totalScore, 100 - totalScore],
+                    backgroundColor: ['#4CAF50', '#FFC107']
+                }]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Total Score Distribution'
+                }
+            }
+        });
+
+        // Bar Chart
+        var barChart = new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: questionTexts,
+                datasets: [{
+                    label: 'Score per Question',
+                    data: scores,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Scores per Question'
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

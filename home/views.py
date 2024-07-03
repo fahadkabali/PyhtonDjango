@@ -6,48 +6,81 @@ from django.urls import reverse
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Question, Response, calculate_total_score, get_feedback
+from .models import Question, UserResponse
 from .forms import ResponseForm
 
+
+
+
+from django.shortcuts import render, redirect
+from .models import Question, Choice, UserResponse
+from django.contrib.auth.decorators import login_required
+
+from django.shortcuts import render, redirect
+from .models import Question, Choice, UserResponse
+from django.contrib.auth.decorators import login_required
+
 # @login_required
-def assessment_view(request):
-    questions = Question.objects.all()
+def take_assessment(request):
     if request.method == 'POST':
         responses = []
-        for question in questions:
-            form = ResponseForm(request.POST, question=question)
-            if form.is_valid():
-                response = form.save(commit=False)
-                response.user = request.user
-                response.question = question
+        for question in Question.objects.all():
+            if question.question_type == Question.SINGLE_CHOICE:
+                choice_id = request.POST.get(f'question_{question.id}')
+                choice = Choice.objects.get(id=choice_id)
+                response = UserResponse(user=request.user, question=question)
                 response.save()
-                form.save_m2m()
-                responses.append(response)
-            else:
-                return render(request, '/assessment/assessment.html', {'questions': questions, 'form': form})
+                response.selected_choices.add(choice)
+            elif question.question_type == Question.MULTIPLE_CHOICE:
+                choice_ids = request.POST.getlist(f'question_{question.id}')
+                response = UserResponse(user=request.user, question=question)
+                response.save()
+                choices = Choice.objects.filter(id__in=choice_ids)
+                for choice in choices:
+                    response.selected_choices.add(choice)
+            responses.append(response)
 
-        total_score = calculate_total_score(responses)
-        feedback = get_feedback(total_score)
-        
-        return render(request, 'assessment/assessment_result.html', {
-            'total_score': total_score,
-            'feedback': feedback,
-        })
+        return redirect('assessment_result')
+
+    questions = Question.objects.all()
+    return render(request, 'assessment/take_assessment.html', {'questions': questions})
+
+# @login_required
+def assessment_result(request):
+    responses = UserResponse.objects.filter(user=request.user)
+    total_score = sum(response.total_score() for response in responses)
     
-    form = ResponseForm(question=questions.first())
-    return render(request, 'assessment/assessment.html', {
-        'questions': questions,
-        'form': form,
+    if total_score > 80:
+        result = {'score': total_score, 'text': 'Advanced', 'color': 'green'}
+    elif 60 < total_score <= 80:
+        result = {'score': total_score, 'text': 'Average', 'color': 'darkgreen'}
+    elif 40 < total_score <= 60:
+        result = {'score': total_score, 'text': 'Basic', 'color': 'orange'}
+    else:
+        result = {'score': total_score, 'text': 'Weak', 'color': 'red'}
+
+    recommendations = []
+    if total_score < 80:
+        recommendations = [
+            "Implement stronger password policies",
+            "Conduct regular security audits",
+            "Enhance staff training on cybersecurity best practices"
+        ]
+
+    # Prepare data for charts
+    question_texts = [response.question.text for response in responses]
+    scores = [response.total_score() for response in responses]
+
+    return render(request, 'assessment/assessment_result.html', {
+        'result': result,
+        'recommendations': recommendations,
+        'question_texts': question_texts,
+        'scores': scores,
+        'total_score': total_score
     })
 
-# @login_required(login_url="/login/")
 def index(request):
     context = {'segment': 'index'}
 
     html_template = loader.get_template('home/index.html')
     return HttpResponse(html_template.render(context, request))
-
-
-
-def results_view(request):
-    return render(request, "home/results.html")

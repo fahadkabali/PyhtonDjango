@@ -1,79 +1,12 @@
+
 {% autoescape off %}
 
-<style>
-  .email-container {
-    /* General styling (consider media queries for responsiveness) */
-    font-family: Arial, sans-serif;
-    margin: 0 auto; 
-    padding: 20px;
-    width: 600px; 
-  }
+ Welcome Login!!
+ Hello {{ user.username }}!!
+ Please verify your email by clicking on the following link.
+ Confirmation Link: http://{{ domain }}{% url 'activate' uidb64=uid token=token %} 
 
-  .heading {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 10px;
-  }
+ {% endautoescape %}
 
-  .greeting {
-    font-size: 18px;
-    margin-bottom: 15px;
-  }
 
-  .verification-message {
-    font-size: 16px;
-    line-height: 1.5;
-  }
 
-  .confirmation-link {
-    color: #07c03e; 
-    text-decoration: none;
-    font-weight: bold;
-  }
-
-  .container {
-    padding-right: 15px;
-    padding-left: 15px;
-    margin-right: auto;
-    margin-left: auto;
-  }
-
-  .row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-right: -15px;
-    margin-left: -15px;
-  }
-
-  .col-md-12 {
-    flex: 0 0 100%;
-    max-width: 100%;
-  }
-
-  .text-center {
-    text-align: center;
-  }
-  p{
-    color:#060538;
-  }
-</style>
-
-<div class="email-container">
-  <h2 class="heading">Email Confirmation</h2>
-
-  <div class="container">  <div class="row">        <div class="col-md-12 text-center"> <p class="greeting">Dear {{ user.username }},</p>
-        <p class="verification-message">
-          Thank you for registering with us! Please verify your email by clicking on the following link:
-        </p>
-        <p>
-          <a href="http://{{ domain }}{% url 'activate' uidb64=uid token=token %}" class="confirmation-link">Confirmation Link</a>
-        </p>
-      </div>
-    </div>
-  </div>
-
-  <p>If you did not create an account, please ignore this email.</p>
-  <p>Best regards,<br>Milima Security Team</p>
-</div>
-
-{% endautoescape %}

@@ -1,13 +1,12 @@
 from django import forms
-from .models import Question, Choice, Response
+from .models import Question, Choice, UserResponse
 
 class ResponseForm(forms.ModelForm):
     class Meta:
-        model = Response
-        fields = ['selected_choices', 'open_ended_response']
+        model = UserResponse
+        fields = ['selected_choices']
         widgets = {
             'selected_choices': forms.CheckboxSelectMultiple,
-            'open_ended_response': forms.Textarea(attrs={'rows': 3}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -16,11 +15,9 @@ class ResponseForm(forms.ModelForm):
         if question.question_type == Question.SINGLE_CHOICE:
             self.fields['selected_choices'].widget = forms.RadioSelect()
             self.fields['selected_choices'].queryset = question.choices.all()
-        elif question.question_type == Question.MULTIPLE_CHOICE:
-            self.fields['selected_choices'].queryset = question.choices.all()
         else:
-            self.fields['selected_choices'].required = False
-            self.fields['open_ended_response'].required = True
+            question.question_type == Question.MULTIPLE_CHOICE
+            self.fields['selected_choices'].queryset = question.choices.all()
 
     def clean(self):
         cleaned_data = super().clean()

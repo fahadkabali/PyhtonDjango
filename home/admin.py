@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.http import HttpResponse
 from django.urls import path
 from django.utils.translation import gettext_lazy as _
-from .models import Question, Choice, Response
+from .models import Question, Choice, UserResponse
 
 # Register your models here.
 class ChoiceInline(admin.TabularInline):
@@ -10,19 +10,19 @@ class ChoiceInline(admin.TabularInline):
     extra = 1
 
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ('text', 'question_type')
-    search_fields = ('text',)
-    list_filter = ('question_type',)
+    # list_display = ('text', 'question_type')
+    # search_fields = ('text',)
+    # list_filter = ('question_type',)
     inlines = [ChoiceInline]
 
-class ResponseAdmin(admin.ModelAdmin):
-    list_display = ('user', 'question')
-    search_fields = ('user__username', 'question__text')
-    list_filter = ('question', 'user')
+# class ResponseAdmin(admin.ModelAdmin):
+#     list_display = ('user', 'question')
+#     search_fields = ('user__username', 'question__text')
+#     list_filter = ('question', 'user')
 
 admin.site.register(Question, QuestionAdmin)
-admin.site.register(Choice)
-admin.site.register(Response, ResponseAdmin)
+# admin.site.register(Choice)
+admin.site.register(UserResponse)
 
 # Customizing the Admin interface
 admin.site.site_header = _("CyberSecurity Maturity Assessment Tool")
