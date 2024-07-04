@@ -91,13 +91,15 @@ def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         myuser = User.objects.get(pk=uid)
-    except (TypeError, ValueError, OverflowError, settings.AUTH_USER_MODEL.DoesNotExist):
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
         myuser = None
 
     if myuser is not None and generate_token.check_token(myuser, token):
         myuser.is_active = True
         myuser.save()
-        login(request, myuser)
+        backend = settings.AUTHENTICATION_BACKENDS[0]
+        myuser.backend = backend
+        login(request, myuser, backend=backend)
         messages.success(request, "Your Account has been activated!!")
         return redirect('login')
     else:

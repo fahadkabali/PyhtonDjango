@@ -29,11 +29,9 @@ class Choice(models.Model):
     question = models.ForeignKey(Question, related_name='choices', on_delete=models.CASCADE)
     text = models.CharField(max_length=255)
     score = models.IntegerField()
-    # percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
-
+    
     def __str__(self):
         return self.text
-        # return f"{self.text} ({self.percentage}%)"
 
 class UserResponse(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
