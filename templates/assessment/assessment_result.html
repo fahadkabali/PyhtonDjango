@@ -1,115 +1,220 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Assessment Result</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
-<body>
-    <div style="color: {{ result.color }}">
-        <p>Your score: {{ result.score }}</p>
-        <p>{{ result.text }}</p>
-        {% if result.score < 80 %}
-            <p>Recommendations for improvement:</p>
-            <ul>
-                {% for recommendation in recommendations %}
-                    <li>{{ recommendation }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+{% extends 'layouts/base.html' %}
+
+{% block title %}Assessment Result{% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card mb-3">
+        <div class="card-header">
+            <i class="fa fa-info-circle"></i> Assessment Result
+        </div>
+        <div class="card-body" style="color: {{ result.color }}">
+            <p>Your score: {{ result.score }}</p>
+            <p>{{ result.text }}</p>
+            {% if result.score < 80 %}
+                <p>Recommendations for improvement:</p>
+                <ul>
+                    {% for recommendation in recommendations %}
+                        <li>{{ recommendation }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
     </div>
 
-    <h2>Assessment Performance</h2>
-    <canvas id="lineChart"></canvas>
-    <canvas id="pieChart"></canvas>
-    <canvas id="barChart"></canvas>
+    <h2 class="my-4">Assessment Performance</h2>
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fa fa-line-chart"></i> Line Chart
+                </div>
+                <div class="card-body">
+                    <canvas id="lineChart" style="width: 100%; height: 350px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fa fa-pie-chart"></i> Pie Chart
+                </div>
+                <div class="card-body">
+                    <canvas id="pieChart" style="width: 100%; height: 350px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <h2>Download Your Certificate</h2>
-    <a href="{% url 'generate_certificate' %}" class="btn btn-primary">Download Certificate</a>
-    <script>
-        var ctxLine = document.getElementById('lineChart').getContext('2d');
-        var ctxPie = document.getElementById('pieChart').getContext('2d');
-        var ctxBar = document.getElementById('barChart').getContext('2d');
+    <div class="card mb-3">
+        <div class="card-header">
+            <i class="fa fa-bar-chart"></i> Bar Chart
+        </div>
+        <div class="card-body">
+            <canvas id="barChart" style="width: 100%; height: 450px;"></canvas>
+        </div>
+    </div>
+    
 
-        var questionTexts = {{ question_texts|safe }};
-        var scores = {{ scores|safe }};
-        var totalScore = {{ total_score|safe }};
+    <div class="card mb-3">
+        <div class="card-header">
+           <i class="fa fa-area-chart"></i> Area Chart
+        </div>
+        <div class="card-body">
+           <div id="areaChart" style="width:100%; height: 450px"></div>
+        </div>
+     </div>
+     <div class="row">
+        <div class="col-lg-8">
+           <!-- Bar Chart -->
+           <div class="card mb-3">
+              <div class="card-header">
+                 <i class="fa fa-bar-chart"></i> Bar Chart
+              </div>
+              <div class="card-body">
+                 <div class="row">
+                    <div class="col-sm-8 my-auto">
+                       <div id="columnChart" style="width: 100%; height: 350px"></div>
+                    </div>
+                 </div>
+              </div>
+           </div>
+        </div>
+        <div class="col-lg-4">
 
-        // Line Chart
-        var lineChart = new Chart(ctxLine, {
-            type: 'line',
-            data: {
-                labels: questionTexts,
-                datasets: [{
-                    label: 'Score per Question',
-                    data: scores,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 2,
-                    fill: false
-                }]
+
+
+
+    <div class="text-right my-4">
+        <h2>Download Your Certificate</h2>
+        <a href="{% url 'generate_certificate' %}" class="btn btn-primary">Download Certificate</a>
+    </div>
+
+    {% include "includes/footer.html" %}
+</div>
+{% endblock content %}
+
+{% block javascripts %}
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    var ctxLine = document.getElementById('lineChart').getContext('2d');
+    var ctxPie = document.getElementById('pieChart').getContext('2d');
+    var ctxBar = document.getElementById('barChart').getContext('2d');
+
+    var questionTexts = {{ question_texts|safe }};
+    var scores = {{ scores|safe }};
+    var totalScore = {{ total_score|safe }};
+
+    // Line Chart
+    var lineChart = new Chart(ctxLine, {
+        type: 'line',
+        data: {
+            labels: questionTexts,
+            datasets: [{
+                label: 'Score per Question',
+                data: scores,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 2,
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Scores per Question'
             },
-            options: {
-                responsive: true,
-                title: {
-                    display: true,
-                    text: 'Scores per Question'
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
-                    }
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 10
                 }
             }
-        });
+        }
+    });
 
-        // Pie Chart
-        var pieChart = new Chart(ctxPie, {
-            type: 'pie',
-            data: {
-                labels: ['Score', 'Remaining'],
-                datasets: [{
-                    data: [totalScore, 100 - totalScore],
-                    backgroundColor: ['#4CAF50', '#FFC107']
-                }]
+    // Pie Chart
+    var pieChart = new Chart(ctxPie, {
+        type: 'pie',
+        data: {
+            labels: ['Score', 'Remaining'],
+            datasets: [{
+                data: [totalScore, 100 - totalScore],
+                backgroundColor: ['#4CAF50', '#FFC107']
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Total Score Distribution'
+            }
+        }
+    });
+
+    // Bar Chart
+    var barChart = new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: questionTexts,
+            datasets: [{
+                label: 'Score per Question',
+                data: scores,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Scores per Question'
             },
-            options: {
-                responsive: true,
-                title: {
-                    display: true,
-                    text: 'Total Score Distribution'
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 10
                 }
             }
-        });
+        }
+    });
 
-        // Bar Chart
-        var barChart = new Chart(ctxBar, {
-            type: 'bar',
-            data: {
-                labels: questionTexts,
-                datasets: [{
-                    label: 'Score per Question',
-                    data: scores,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                title: {
-                    display: true,
-                    text: 'Scores per Question'
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        max: 100
-                    }
-                }
-            }
-        });
-    </script>
-</body>
-</html>
+    var areaChart = new CanvasJS.Chart("areaChart", {
+         animationEnabled: true,
+         exportEnabled: true,
+         axisX: {
+         lineColor: "rgba(0, 0, 0, .125)",
+         labelFontColor: "rgba(0, 0, 0, .5)",
+         tickColor: "rgba(0, 0, 0, .125)",
+         minimum: 0,
+         maximum: 11
+         },
+         axisY: {
+         gridColor: "rgba(0, 0, 0, .125)",
+         lineColor: "rgba(0, 0, 0, .125)",
+         labelFontColor: "rgba(0, 0, 0, .5)",
+         tickColor: "rgba(0, 0, 0, .125)",
+         includeZero: true
+         },
+         toolTip: {
+         shared: true
+         },
+         data: [{
+         type: "splineArea",
+         name: "Sessions",
+         fillOpacity: 0.25,
+         markerSize: 10,
+         markerBorderThickness: 2,
+         markerBorderColor: "white",        
+         color: "rgb(2, 117, 216)",
+         dataPoints: {{ area_data | safe }}
+         }]
+         });
+         areaChart.render();
+         
+</script>
+{% endblock javascripts %}

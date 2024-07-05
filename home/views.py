@@ -123,26 +123,34 @@ def generate_certificate(request):
     draw = ImageDraw.Draw(certificate)
 
     # Load font
-    font_path = os.path.join(settings.STATIC_ROOT, 'arial.ttf')
-    font = ImageFont.truetype(font_path, 40)
+    font_path = os.path.join(settings.STATIC_ROOT, 'open-sans.bold.ttf')
+    font = ImageFont.truetype(font_path, 60)
 
     # Coordinates for the text
     coordinates = {
-        'fullname': (500, 200),
-        'email': (500, 300),
-        'organisation_name': (500, 400),
-        'total_score': (500, 500),
-        'score_text': (500, 600),
+        'fullname': (890, 1522),
+        'email': (890, 1590),
+        'organisation_name': (890, 1670),
+        'total_score': (2164, 2190),
+        'score_text': (1500, 2035),
+        'score_circle': (688, 2096)
     }
-
+    total_score_with_percentage = f"{total_score} %"
     # Add text to the certificate
     draw.text(coordinates['fullname'], fullname, fill="black", font=font)
     draw.text(coordinates['email'], email, fill="black", font=font)
     draw.text(coordinates['organisation_name'], organisation_name, fill="black", font=font)
-    draw.text(coordinates['total_score'], str(total_score), fill="black", font=font)
+    draw.text(coordinates['total_score'], str(total_score_with_percentage), fill="black", font=font)
     draw.text(coordinates['score_text'], score_text, fill=score_color, font=font)
 
     # Save the certificate to a BytesIO object
+    circle_center = coordinates['score_circle']
+    circle_radius = 135  # radius of the circle
+    draw.ellipse(
+        (circle_center[0] - circle_radius, circle_center[1] - circle_radius,
+         circle_center[0] + circle_radius, circle_center[1] + circle_radius),
+        fill=score_color
+    )
     image_buffer = BytesIO()
     certificate.save(image_buffer, format='PNG')
     image_buffer.seek(0)
