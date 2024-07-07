@@ -97,30 +97,6 @@
        <div id="areaChart" style="width:100%; height: 450px"></div>
     </div>
  </div>
- <div class="row">
-    <div class="col-lg-8">
-       <!-- Bar Chart -->
-       <div class="card mb-3">
-          <div class="card-header">
-             <i class="fa fa-bar-chart"></i> Bar Chart
-          </div>
-          <div class="card-body">
-            <div id="columnChart" style="width: 100%; height: 350px"></div>
-          </div>
-       </div>
-    </div>
-    <div class="col-lg-4">
-       <!-- Example Pie Chart Card-->
-       <div class="card mb-3">
-          <div class="card-header">
-             <i class="fa fa-pie-chart"></i> Pie Chart
-          </div>
-          <div class="card-body">
-             <div id="pieChart" style="width: 100%; height: 350px"></div>
-          </div>
-       </div>
-    </div>
- </div>
  <div class="text-right my-4">
     <h2>Download Your Certificate</h2>
     <a href="{% url 'generate_certificate' %}" class="btn btn-primary">Download Certificate</a>
@@ -170,7 +146,7 @@
       content: "{name}: {y} - {label}"
     },
     data: [{
-      type: "line",
+      type: "bar",
       name: "Score per Question",
       showInLegend: true,
       legendMarkerType: "square",
@@ -235,30 +211,34 @@
   });
   pieChart.render();
 
-  // Function to download chart as image
-  function downloadChart(chart, fileName) {
-    chart.exportChart({ format: "png" });
-  }
-
-  // Add download buttons
-  $(document).ready(function() {
-    $('<button class="btn btn-primary mt-2">Download Line Chart</button>')
-      .insertAfter('#lineChart')
-      .click(function() {
-        downloadChart(lineChart, 'line_chart.png');
-      });
-
-    $('<button class="btn btn-primary mt-2">Download Bar Chart</button>')
-      .insertAfter('#barChart')
-      .click(function() {
-        downloadChart(barChart, 'bar_chart.png');
-      });
-
-    $('<button class="btn btn-primary mt-2">Download Pie Chart</button>')
-      .insertAfter('#pieChart')
-      .click(function() {
-        downloadChart(pieChart, 'pie_chart.png');
-      });
+  var areaChart = new CanvasJS.Chart("areaChart", {
+    animationEnabled: true,
+    exportEnabled: true,
+    theme: "dark2",
+    title: {
+      text: "Scores per Question"
+    },
+    axisY: {
+      includeZero: true,
+      maximum: 10
+    },
+    toolTip: {
+      shared: true,
+      content: "{name}: {y} - {label}"
+    },
+    data: [{
+      type: "area",
+      name: "Score per Question",
+      showInLegend: true,
+      legendMarkerType: "square",
+      dataPoints: scores.map((score, index) => ({
+        y: score,
+        label: shortLabels[index],
+        name: questionTexts[index]
+      }))
+    }]
   });
+  areaChart.render();
+
 </script>
 {% endblock javascripts %}
