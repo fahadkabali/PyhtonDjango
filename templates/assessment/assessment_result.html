@@ -1,96 +1,131 @@
 {% extends 'layouts/base.html' %}
+{% load static %}
 
 {% block title %}Assessment Result{% endblock title %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="card mb-3">
-        <div class="card-header">
-            <i class="fa fa-info-circle"></i> Assessment Result
+
+<!-- Header -->
+<div class="header bg-primary pb-6">
+  <div class="container-fluid">
+    <div class="header-body">
+      <div class="row align-items-center py-4">
+        <div class="col-lg-6 col-7">
+          <h6 class="h2 text-white d-inline-block mb-0">Assessment Result</h6>
+          <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+            <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
+              <li class="breadcrumb-item"><a href="#"><i class="ni ni-bullet-list-67 text-default"></i></a></li>
+              <li class="breadcrumb-item"><a href="{% url 'take_assessment' %}">Assessment</a></li>
+              <li class="breadcrumb-item active" aria-current="page">Result</li>
+            </ol>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Page content -->
+<div class="container-fluid mt--6">
+  <div class="row">
+    <div class="col-xl-8">
+      <div class="card bg-light.bg-gradient">
+        <div class="card-header bg-transparent">
+          <div class="row align-items-center">
+            <div class="col">
+              <h6 class="text-dark text-uppercase ls-1 mb-1">Overview</h6>
+              <h5 class="h2 text-default mb-0">Assessment Result</h5>
+            </div>
+          </div>
         </div>
         <div class="card-body" style="color: {{ result.color }}">
-            <p>Your score: {{ result.score }}</p>
-            <p>{{ result.text }}</p>
-            {% if result.score < 80 %}
-                <p>Recommendations for improvement:</p>
-                <ul>
-                    {% for recommendation in recommendations %}
-                        <li>{{ recommendation }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
+          <p>Your score: {{ result.score }}</p>
+          <p>{{ result.text }}</p>
+          {% if result.score < 80 %}
+            <p>Recommendations for improvement:</p>
+            <ul>
+              {% for recommendation in recommendations %}
+                <li>{{ recommendation }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
         </div>
+      </div>
     </div>
+  </div>
 
-    <h2 class="my-4">Assessment Performance</h2>
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <i class="fa fa-line-chart"></i> Line Chart
-                </div>
-                <div class="card-body">
-                    <canvas id="lineChart" style="width: 100%; height: 350px;"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-4">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <i class="fa fa-pie-chart"></i> Pie Chart
-                </div>
-                <div class="card-body">
-                    <canvas id="pieChart" style="width: 100%; height: 350px;"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="card mb-3">
+  <h2 class="my-4">Assessment Performance</h2>
+  <div class="row">
+    <div class="col-xl-8">
+      <div class="card mb-3">
         <div class="card-header">
-            <i class="fa fa-bar-chart"></i> Bar Chart
+          <i class="fa fa-line-chart"></i> Line Chart
         </div>
         <div class="card-body">
-            <canvas id="barChart" style="width: 100%; height: 450px;"></canvas>
+            <div id="lineChart" style="width: 100%; height: 350px;"></div>
         </div>
+      </div>
     </div>
-    
-
-    <div class="card mb-3">
+    <div class="col-xl-4">
+      <div class="card mb-3">
         <div class="card-header">
-           <i class="fa fa-area-chart"></i> Area Chart
+          <i class="fa fa-pie-chart"></i> Pie Chart
         </div>
         <div class="card-body">
-           <div id="areaChart" style="width:100%; height: 450px"></div>
+            <div id="pieChart" style="width: 100%; height: 350px;"></div>
         </div>
-     </div>
-     <div class="row">
-        <div class="col-lg-8">
-           <!-- Bar Chart -->
-           <div class="card mb-3">
-              <div class="card-header">
-                 <i class="fa fa-bar-chart"></i> Bar Chart
-              </div>
-              <div class="card-body">
-                 <div class="row">
-                    <div class="col-sm-8 my-auto">
-                       <div id="columnChart" style="width: 100%; height: 350px"></div>
-                    </div>
-                 </div>
-              </div>
-           </div>
-        </div>
-        <div class="col-lg-4">
-
-
-
-
-    <div class="text-right my-4">
-        <h2>Download Your Certificate</h2>
-        <a href="{% url 'generate_certificate' %}" class="btn btn-primary">Download Certificate</a>
+      </div>
     </div>
+  </div>
 
-    {% include "includes/footer.html" %}
+  <div class="card mb-3">
+    <div class="card-header">
+      <i class="fa fa-bar-chart"></i> Bar Chart
+    </div>
+    <div class="card-body">
+        <div id="barChart" style="width: 100%; height: 350px;"></div>
+    </div>
+  </div>
+
+
+
+  <div class="card mb-3">
+    <div class="card-header">
+       <i class="fa fa-area-chart"></i> Area Chart
+    </div>
+    <div class="card-body">
+       <div id="areaChart" style="width:100%; height: 450px"></div>
+    </div>
+ </div>
+ <div class="row">
+    <div class="col-lg-8">
+       <!-- Bar Chart -->
+       <div class="card mb-3">
+          <div class="card-header">
+             <i class="fa fa-bar-chart"></i> Bar Chart
+          </div>
+          <div class="card-body">
+            <div id="columnChart" style="width: 100%; height: 350px"></div>
+          </div>
+       </div>
+    </div>
+    <div class="col-lg-4">
+       <!-- Example Pie Chart Card-->
+       <div class="card mb-3">
+          <div class="card-header">
+             <i class="fa fa-pie-chart"></i> Pie Chart
+          </div>
+          <div class="card-body">
+             <div id="pieChart" style="width: 100%; height: 350px"></div>
+          </div>
+       </div>
+    </div>
+ </div>
+ <div class="text-right my-4">
+    <h2>Download Your Certificate</h2>
+    <a href="{% url 'generate_certificate' %}" class="btn btn-primary">Download Certificate</a>
+ </div>
+  {% include "includes/footer.html" %}
 </div>
 {% endblock content %}
 
@@ -99,122 +134,131 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+<script src='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js'></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.5/umd/popper.js"></script>
+<script src="https://cdn.datatables.net/1.10.16/js/jquery.dataTables.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/datatables/1.10.16/js/dataTables.bootstrap4.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script src="{% static 'canvasjs.min.js' %}"></script>
+<script src="https://cdn.canvasjs.com/ga/canvasjs.stock.min.js"></script>
+<script src="{% static 'script.js' %}"></script>
+
 <script>
-    var ctxLine = document.getElementById('lineChart').getContext('2d');
-    var ctxPie = document.getElementById('pieChart').getContext('2d');
-    var ctxBar = document.getElementById('barChart').getContext('2d');
+  var questionTexts = {{ question_texts|safe }};
+  var scores = {{ scores|safe }};
+  var totalScore = {{ total_score|safe }};
 
-    var questionTexts = {{ question_texts|safe }};
-    var scores = {{ scores|safe }};
-    var totalScore = {{ total_score|safe }};
+  var shortLabels = questionTexts.map((_, index) => 'Question ' + (index + 1));
 
-    // Line Chart
-    var lineChart = new Chart(ctxLine, {
-        type: 'line',
-        data: {
-            labels: questionTexts,
-            datasets: [{
-                label: 'Score per Question',
-                data: scores,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 2,
-                fill: false
-            }]
-        },
-        options: {
-            responsive: true,
-            title: {
-                display: true,
-                text: 'Scores per Question'
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 10
-                }
-            }
-        }
-    });
+  // Line Chart
+  var lineChart = new CanvasJS.Chart("lineChart", {
+    animationEnabled: true,
+    exportEnabled: true,
+    theme: "dark2",
+    title: {
+      text: "Scores per Question"
+    },
+    axisY: {
+      includeZero: true,
+      maximum: 10
+    },
+    toolTip: {
+      shared: true,
+      content: "{name}: {y} - {label}"
+    },
+    data: [{
+      type: "line",
+      name: "Score per Question",
+      showInLegend: true,
+      legendMarkerType: "square",
+      dataPoints: scores.map((score, index) => ({
+        y: score,
+        label: shortLabels[index],
+        name: questionTexts[index]
+      }))
+    }]
+  });
+  lineChart.render();
 
-    // Pie Chart
-    var pieChart = new Chart(ctxPie, {
-        type: 'pie',
-        data: {
-            labels: ['Score', 'Remaining'],
-            datasets: [{
-                data: [totalScore, 100 - totalScore],
-                backgroundColor: ['#4CAF50', '#FFC107']
-            }]
-        },
-        options: {
-            responsive: true,
-            title: {
-                display: true,
-                text: 'Total Score Distribution'
-            }
-        }
-    });
+  // Bar Chart
+  var barChart = new CanvasJS.Chart("barChart", {
+    animationEnabled: true,
+    exportEnabled: true,
+    theme: "light2",
+    title: {
+      text: "Scores per Question"
+    },
+    axisY: {
+      includeZero: true,
+      maximum: 10
+    },
+    toolTip: {
+      shared: true,
+      content: "{name}: {y} - {label}"
+    },
+    data: [{
+      type: "column",
+      name: "Score per Question",
+      showInLegend: true,
+      legendMarkerType: "square",
+      color: "blue",
+      dataPoints: scores.map((score, index) => ({
+        y: score,
+        label: shortLabels[index],
+        name: questionTexts[index]
+      }))
+    }]
+  });
+  barChart.render();
 
-    // Bar Chart
-    var barChart = new Chart(ctxBar, {
-        type: 'bar',
-        data: {
-            labels: questionTexts,
-            datasets: [{
-                label: 'Score per Question',
-                data: scores,
-                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            title: {
-                display: true,
-                text: 'Scores per Question'
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    max: 10
-                }
-            }
-        }
-    });
+  // Pie Chart
+  var pieChart = new CanvasJS.Chart("pieChart", {
+    animationEnabled: true,
+    exportEnabled: true,
+    theme: "light2",
+    title: {
+      text: "Total Score Distribution"
+    },
+    data: [{
+      type: "pie",
+      showInLegend: true,
+      legendText: "{label}",
+      toolTipContent: "<b>{label}</b>: {y} (#percent%)",
+      dataPoints: [
+        { y: totalScore, label: "Score" },
+        { y: 100 - totalScore, label: "Remaining" }
+      ]
+    }]
+  });
+  pieChart.render();
 
-    var areaChart = new CanvasJS.Chart("areaChart", {
-         animationEnabled: true,
-         exportEnabled: true,
-         axisX: {
-         lineColor: "rgba(0, 0, 0, .125)",
-         labelFontColor: "rgba(0, 0, 0, .5)",
-         tickColor: "rgba(0, 0, 0, .125)",
-         minimum: 0,
-         maximum: 11
-         },
-         axisY: {
-         gridColor: "rgba(0, 0, 0, .125)",
-         lineColor: "rgba(0, 0, 0, .125)",
-         labelFontColor: "rgba(0, 0, 0, .5)",
-         tickColor: "rgba(0, 0, 0, .125)",
-         includeZero: true
-         },
-         toolTip: {
-         shared: true
-         },
-         data: [{
-         type: "splineArea",
-         name: "Sessions",
-         fillOpacity: 0.25,
-         markerSize: 10,
-         markerBorderThickness: 2,
-         markerBorderColor: "white",        
-         color: "rgb(2, 117, 216)",
-         dataPoints: {{ area_data | safe }}
-         }]
-         });
-         areaChart.render();
-         
+  // Function to download chart as image
+  function downloadChart(chart, fileName) {
+    chart.exportChart({ format: "png" });
+  }
+
+  // Add download buttons
+  $(document).ready(function() {
+    $('<button class="btn btn-primary mt-2">Download Line Chart</button>')
+      .insertAfter('#lineChart')
+      .click(function() {
+        downloadChart(lineChart, 'line_chart.png');
+      });
+
+    $('<button class="btn btn-primary mt-2">Download Bar Chart</button>')
+      .insertAfter('#barChart')
+      .click(function() {
+        downloadChart(barChart, 'bar_chart.png');
+      });
+
+    $('<button class="btn btn-primary mt-2">Download Pie Chart</button>')
+      .insertAfter('#pieChart')
+      .click(function() {
+        downloadChart(pieChart, 'pie_chart.png');
+      });
+  });
 </script>
 {% endblock javascripts %}
