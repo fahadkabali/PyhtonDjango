@@ -52,6 +52,10 @@
         </div>
       </div>
     </div>
+    <div class="text-right my-4 ">
+      <h2>Download Your Results</h2>
+      <a href="{% url 'generate_certificate' %}" class="btn btn-default">Download Results</a>
+   </div>
   </div>
 
   <h2 class="my-4">Assessment Performance</h2>
@@ -77,30 +81,30 @@
       </div>
     </div>
   </div>
-
-  <div class="card mb-3">
-    <div class="card-header">
-      <i class="fa fa-bar-chart"></i> Bar Chart
-    </div>
-    <div class="card-body">
-        <div id="barChart" style="width: 100%; height: 350px;"></div>
+  <div class="row">
+    <div class="col-xl-8">
+      <div class="card mb-3">
+        <div class="card-header">
+          <i class="fa fa-bar-chart"></i> Bar Chart
+        </div>
+        <div class="card-body">
+            <div id="barChart" style="width: 100%; height: 350px;"></div>
+        </div>
     </div>
   </div>
 
 
-
-  <div class="card mb-3">
-    <div class="card-header">
-       <i class="fa fa-area-chart"></i> Area Chart
-    </div>
-    <div class="card-body">
-       <div id="areaChart" style="width:100%; height: 450px"></div>
-    </div>
- </div>
- <div class="text-right my-4">
-    <h2>Download Your Certificate</h2>
-    <a href="{% url 'generate_certificate' %}" class="btn btn-primary">Download Certificate</a>
- </div>
+  <div class="col-xl-4">
+    <div class="card mb-3">
+      <div class="card-header">
+        <i class="fa fa-area-chart"></i> Area Chart
+      </div>
+      <div class="card-body">
+        <div id="areaChart" style="width:100%; height: 450px"></div>
+      </div>
+  </div>
+  </div>
+</div>
   {% include "includes/footer.html" %}
 </div>
 {% endblock content %}

@@ -151,7 +151,7 @@ def generate_certificate(request):
     coordinates = {
         'fullname': (890, 1522),
         'email': (890, 1590),
-        'organisation_name': (890, 1670),
+        'organisation_name': (890, 1665),
         'total_score': (2164, 2190),
         'score_text': (1500, 2035),
         'score_circle': (688, 2096)
