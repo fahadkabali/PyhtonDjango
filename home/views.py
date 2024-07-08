@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.urls import reverse
+from django.contrib.auth import get_user_model
 from django.contrib import messages
 from django.shortcuts import render, redirect
 from .forms import ResponseForm
@@ -16,8 +17,14 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from io import BytesIO
 import os
+
+
+
+User = get_user_model()
+
 def index(request):
     user = request.user
+    user_count = User.objects.count()
     responses = UserResponse.objects.filter(user=request.user)
     total_score = sum(response.total_score() for response in responses)
 
@@ -25,12 +32,15 @@ def index(request):
     # Prepare data for charts
     question_texts = [response.question.text for response in responses]
     scores = [response.total_score() for response in responses]
+    question = Question.objects.all()
 
     return render (request, 'home/index.html', {
+        'question':question,
         'user': user,
         'question_texts': question_texts,
         'scores': scores,
-        'total_score': total_score
+        'total_score': total_score,
+        'user_count':user_count
     })
 
 # @login_required
