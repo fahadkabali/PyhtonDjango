@@ -17,10 +17,21 @@ from reportlab.pdfgen import canvas
 from io import BytesIO
 import os
 def index(request):
-    context = {'segment': 'index'}
+    user = request.user
+    responses = UserResponse.objects.filter(user=request.user)
+    total_score = sum(response.total_score() for response in responses)
 
-    html_template = loader.get_template('home/index.html')
-    return HttpResponse(html_template.render(context, request))
+
+    # Prepare data for charts
+    question_texts = [response.question.text for response in responses]
+    scores = [response.total_score() for response in responses]
+
+    return render (request, 'home/index.html', {
+        'user': user,
+        'question_texts': question_texts,
+        'scores': scores,
+        'total_score': total_score
+    })
 
 # @login_required
 def take_assessment(request):
