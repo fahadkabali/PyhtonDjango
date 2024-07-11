@@ -22,6 +22,7 @@ import os
 
 User = get_user_model()
 
+@login_required
 def index(request):
     user = request.user
     user_count = User.objects.count()
@@ -43,7 +44,7 @@ def index(request):
         'user_count':user_count
     })
 
-# @login_required
+@login_required
 def take_assessment(request):
     if request.method == 'POST':
         responses = []
@@ -79,6 +80,7 @@ def take_assessment(request):
     questions = Question.objects.all()
     return render(request, 'assessment/take_assessment.html', {'questions': questions})
 
+@login_required
 def assessment_result(request):
     responses = UserResponse.objects.filter(user=request.user)
     total_score = sum(response.total_score() for response in responses)
@@ -97,8 +99,26 @@ def assessment_result(request):
         recommendations = [
             "Implement stronger password policies",
             "Conduct regular security audits",
-            "Enhance staff training on cybersecurity best practices"
+            "Enhance staff training on cybersecurity best practices",
+            "Implement multi-factor authentication (MFA) where feasible",
+            "Deploy endpoint protection solutions on all devices",
+            "Establish a formal incident response plan and conduct regular drills",
+            "Encrypt sensitive data both in transit and at rest",
+            "Implement network segmentation to limit the impact of breaches",
+            "Update and patch systems and software regularly",
+            "Monitor and log network activity for suspicious behavior",
+            "Consider implementing a Security Information and Event Management (SIEM) system",
+            "Review and revise access controls periodically to ensure least privilege access",
+            "Enhance physical security measures for data centers and critical infrastructure",
+            "Emphasize the importance of cyber security awareness and training:",
+            "   - This investment prevents greater costs resulting from avoidable data breaches.",
+            "   - Educate employees and business owners on effective incident response and risk management.",
+            "   - Provide guidance on fraud prevention, phishing awareness, identity theft, and scams.",
+            "   - Help employees understand common system vulnerabilities and recognize suspicious activities.",
+            "   - Encourage a culture where security considerations are integrated into daily decision-making.",
+            "   - Ensure compliance with company security standards, policies, and procedures."
         ]
+
 
     # Prepare data for charts
     question_texts = [response.question.text for response in responses]
@@ -113,7 +133,7 @@ def assessment_result(request):
     })
 
 
-
+@login_required
 def generate_certificate(request):
     responses = UserResponse.objects.filter(user=request.user)
     user = request.user

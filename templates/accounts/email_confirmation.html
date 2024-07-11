@@ -4,7 +4,7 @@
  Welcome Login!!
  Hello {{ user.username }}!!
  Please verify your email by clicking on the following link.
- Confirmation Link: http://{{ domain }}{% url 'activate' uidb64=uid token=token %} 
+ Confirmation Link: http://{{ domain }}{% url 'authentication:activate' uidb64=uid token=token %} 
 
  {% endautoescape %}
 

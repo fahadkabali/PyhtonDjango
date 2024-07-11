@@ -2,6 +2,8 @@
 from django.urls import path
 from . import views
 
+
+app_name = 'authentication'
 urlpatterns = [
     path('activate/<uidb64>/<token>', views.activate, name='activate'),
     path('login/', views.login_view, name="login"),

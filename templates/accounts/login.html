@@ -32,7 +32,7 @@
                   <p>Login your credentials</p>
                 {% endif %}  
               </div>
-              <form method="POST">
+              <form method="POST" >
 
                 {% csrf_token %}
 
@@ -66,7 +66,7 @@
           </div>
           <div class="row mt-3">
             <div class="col-6">
-              <a href="{% url 'register' %}" class="text-light"><small>Register</small></a>
+              <a href="{% url 'authentication:register' %}" class="text-light"><small>Register</small></a>
             </div>
             <div class="col-6 text-right">
               <a href="" class="text-light"><small>Get Support</small></a>

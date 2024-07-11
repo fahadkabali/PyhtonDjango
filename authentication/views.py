@@ -15,6 +15,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes, force_str
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from django.views.decorators.csrf import csrf_protect
 from .forms import *
 from .models import *
 
@@ -22,6 +23,7 @@ User = get_user_model()
 
 
 #registration account view
+@csrf_protect
 def register_user(request):
     if request.method == "POST":
         form = SignUpForm(request.POST)
@@ -78,7 +80,7 @@ def register_user(request):
             email.send(fail_silently=True)
 
             messages.success(request, "Your Account has been created successfully!! Please check your email to confirm your email address in order to activate your account.")
-            return redirect("login")
+            return redirect("authentication:login")
         else:
             messages.error(request, 'Form is not valid')
     else:
@@ -87,6 +89,7 @@ def register_user(request):
     return render(request, "accounts/register.html", {"form": form})
 
 #view for account activation
+@csrf_protect
 def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -101,11 +104,12 @@ def activate(request, uidb64, token):
         myuser.backend = backend
         login(request, myuser, backend=backend)
         messages.success(request, "Your Account has been activated!!")
-        return redirect('login')
+        return redirect('authentication:login')
     else:
         return render(request, 'accounts/activation_failed.html')
 
 #login view for registered users
+@csrf_protect
 def login_view(request):
     form = LoginForm(request.POST or None)
     if request.method == "POST":
@@ -118,10 +122,10 @@ def login_view(request):
                 return redirect("/")
             else:
                 messages.error(request, 'Invalid credentials')
-                return redirect("login")
+                return redirect("authentication:login")
         else:
             messages.error(request, 'Error validating the form')
-            return redirect("login")
+            return redirect("authentication:login")
 
     return render(request, "accounts/login.html", {"form": form})
 
@@ -129,9 +133,10 @@ def login_view(request):
 def user_logout(request):
     logout(request)
     messages.success(request, "Logged out successfully!")
-    return redirect("login")
+    return redirect("authentication:login")
 
 #view for the profile editing and view
+@csrf_protect
 def profile_view(request):
     user = get_object_or_404(CustomUser, pk=request.user.pk)
     form = UserProfileForm(request.POST or None, request.FILES or None, instance=user)
@@ -176,6 +181,7 @@ def profile_view(request):
     return render(request, 'accounts/profile.html', context)
 
 #view for ddeleting user account
+@csrf_protect
 def delete_account_view(request):
     if request.method == 'POST':
         form = AccountDeletionForm(request.POST)
@@ -187,7 +193,7 @@ def delete_account_view(request):
             user.delete()
             messages.success(request, "Your account has been deleted.")
             logout(request)
-            return redirect('authentication/register')
+            return redirect('register')
         else:
             messages.error(request, "Invalid data provided.")
     else:
