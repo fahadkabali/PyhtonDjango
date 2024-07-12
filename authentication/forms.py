@@ -18,6 +18,11 @@ class LoginForm(forms.Form):
                 "class": "form-control"
             }
         ))
+    remember_me = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={'class': 'custom-control-input', 'id': 'customCheckRegister'}),
+        label='Remember Me',
+        required=False
+        )
 
 
 class SignUpForm(UserCreationForm):
@@ -63,6 +68,12 @@ class SignUpForm(UserCreationForm):
                 "class": "form-control"
             }
         ))
+    agree_to_privacy_policy = forms.BooleanField(
+        widget=forms.CheckboxInput(attrs={'class': 'custom-control-input', 'id': 'customCheckRegister'}),
+        label='I agree with the Privacy Policy',
+        required=True
+    )
+
 
     class Meta:
         model = CustomUser

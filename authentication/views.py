@@ -35,6 +35,8 @@ def register_user(request):
             email = form.cleaned_data.get("email")
             password1 = form.cleaned_data.get("password1")
             password2 = form.cleaned_data.get("password2")
+            agree_to_privacy_policy = form.cleaned_data.get("agree_to_privacy_policy")
+
             
             if User.objects.filter(username=username).exists():
                 messages.error(request, "Username already exists! Please try a different username.")
@@ -61,6 +63,10 @@ def register_user(request):
                 user.save()
             except IntegrityError:
                 messages.error(request, "An error occurred during registration. Please try again.")
+                return redirect('register')
+            
+            if not agree_to_privacy_policy:
+                messages.error(request, "You must agree to the Privacy Policy.")
                 return redirect('register')
 
             subject = "Welcome to Login!!"
@@ -117,6 +123,7 @@ def login_view(request):
         if form.is_valid():
             username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password")
+            remember_me = form.cleaned_data.get("remember_me")
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
