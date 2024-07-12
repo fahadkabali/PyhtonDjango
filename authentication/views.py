@@ -15,6 +15,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes, force_str
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_protect
 from .forms import *
 from .models import *

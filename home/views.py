@@ -88,7 +88,7 @@ def assessment_result(request):
     if total_score > 80:
         result = {'score': total_score, 'text': 'Advanced', 'color': 'green'}
     elif 60 < total_score <= 80:
-        result = {'score': total_score, 'text': 'Average', 'color': 'darkgreen'}
+        result = {'score': total_score, 'text': 'Average', 'color': 'blue'}
     elif 40 < total_score <= 60:
         result = {'score': total_score, 'text': 'Basic', 'color': 'orange'}
     else:
@@ -148,10 +148,10 @@ def generate_certificate(request):
     if total_score > 80:
         score_text = "Advanced"
         score_color = "green"
-    elif 60 <= total_score <= 80:
+    elif 60 < total_score <= 80:
         score_text = "Average"
-        score_color = "darkgreen"
-    elif 40 <= total_score < 60:
+        score_color = "blue"
+    elif 40 < total_score <= 60:
         score_text = "Basic"
         score_color = "orange"
     else:
