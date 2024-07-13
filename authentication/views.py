@@ -17,6 +17,12 @@ from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_protect
+from django.shortcuts import render, redirect
+from django.contrib.auth.views import PasswordResetView
+from django.utils.decorators import method_decorator
+from django.views.decorators.http import require_POST
+from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.messages.views import SuccessMessageMixin
 from .forms import *
 from .models import *
 
@@ -208,3 +214,15 @@ def delete_account_view(request):
         form = AccountDeletionForm()
 
     return render(request, 'accounts/delete_account.html', {'form': form})
+
+#password reset
+class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
+    template_name = 'registration/password_reset.html'
+    email_template_name = 'registration/password_reset_email.html'
+    subject_template_name = 'registration/password_reset_subject.txt'
+    success_message = "We've emailed you instructions for setting your password, " \
+                      "if an account exists with the email you entered. You should receive them shortly." \
+                      " If you don't receive an email, " \
+                      "please make sure you've entered the address you registered with, and check your spam folder."
+    success_url = reverse_lazy('/')
+
