@@ -1,2 +1,24 @@
-<h1>Thank you for your inquiry</h1>
-<p>Your contact information and message was successfully submitted.</p>
+
+{% extends 'layouts/base-fullscreen.html' %}
+{% block content %}
+    <div class="container mt--8 pb-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-5">
+                <div class="card-body">
+                    <div class="alert alert-success d-flex align-items-center" role="alert">
+                        <div class="col-auto">
+                            <div class="icon icon-shape bg-gradient-primary text-white rounded-circle shadow">
+                                <i class="fa-solid fa-thumbs-up"></i>
+                            </div>
+                        </div>
+                        <p class="mt-3 mb-0 text-sm"> 
+                            <span class="font-weight-bold mb-0"><h1> Thank you for your inquiry</h1></span>
+                            <span class="text-nowrap align-items-center">Your contact information and message was successfully submitted.</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+  {% endblock content %}
