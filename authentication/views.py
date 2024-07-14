@@ -1,5 +1,6 @@
 
 from django.db import IntegrityError
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth import get_user_model
@@ -26,8 +27,11 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.core.mail import EmailMessage
 from .forms import *
 from .models import *
+import csv
+
 
 User = get_user_model()
 
@@ -253,6 +257,44 @@ def change_password_view(request):
         form = PasswordChangeForm(request.user)
 
     return render(request, 'registration/change_password.html', {'form': form})
+
+#contact form view
+def contact(request):
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            message = form.cleaned_data['message']
+
+
+        EmailMessage(
+            'Contact Form Submission from {}'.format(name),
+            message,
+            'form-response@example.com', # Send from (your website)
+            ['JohnDoe@gmail.com'], # Send to (your admin email)
+            [],
+            reply_to=[email] # Email from the form to get back to
+        ).send()
+
+        return redirect('success')
+    else:
+        form = ContactForm()
+    return render(request, 'contact.html', {'form': form})
+
+
+def success(request):
+    form = ContactForm()
+    name = form.cleaned_data['name']
+    email = form.cleaned_data['email']
+    message = form.cleaned_data['message']
+
+    file = open('responses.csv', 'a')
+    writer = csv.writer(file)
+    writer.writerow([name,email,message])
+    file.close()
+
+    return redirect('success')
 
 
 

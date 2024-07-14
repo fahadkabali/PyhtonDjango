@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
+from django.core.validators import EmailValidator
+
 
 
 class LoginForm(forms.Form):
@@ -160,3 +162,13 @@ class UserEditForm(CustomUserForm):
     class Meta(CustomUserForm.Meta):
         model = CustomUser
         fields = CustomUserForm.Meta.fields
+
+
+#contact form 
+class ContactForm(forms.Form):
+    name = forms.CharField(max_length=100, required=True)
+    email = forms.CharField(validators=[EmailValidator()], required=True)
+    organisation_name = forms.CharField(max_length=100,required=True)
+    phone = forms.CharField(max_length=15)
+    subject = forms.CharField(max_length=100)
+    message = forms.CharField(widget=forms.Textarea)
