@@ -1,0 +1,13 @@
+{% extends 'layouts/base.html' %}
+{% block content %}
+    <h1>{{ question.text }}</h1>
+    <p>Type: {{ question.get_question_type_display }}</p>
+    <p>Max Score: {{ question.max_score }}</p>
+
+    <h2>Choices:</h2>
+    <ul>
+        {% for choice in choices %}
+            <li>{{ choice.text }} (Score: {{ choice.score }})</li>
+        {% endfor %}
+    </ul>
+{% endblock %}

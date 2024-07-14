@@ -5,7 +5,7 @@ from django.template import loader
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from .forms import ResponseForm
 from .models import Question, Choice, UserResponse
 from django.shortcuts import render, redirect
@@ -17,6 +17,8 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from io import BytesIO
 import os
+from django.db.models import Q
+
 
 
 
@@ -212,3 +214,24 @@ def generate_certificate(request):
     response = HttpResponse(pdf_buffer, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename=certificate_{user.username}.pdf'
     return response
+
+#search button 
+def search_view(request):
+    query = request.GET.get('q', '')
+    results = Question.objects.filter(Q(text__icontains=query))
+
+    context = {
+        'query': query,
+        'results': results,
+    }
+    return render(request, 'search/search_results.html', context)
+
+def question_detail_view(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    choices = question.choices.all()
+
+    context = {
+        'question': question,
+        'choices': choices,
+    }
+    return render(request, 'search/question_detail.html', context)
