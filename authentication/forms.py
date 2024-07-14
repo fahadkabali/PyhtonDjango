@@ -15,7 +15,9 @@ class LoginForm(forms.Form):
         widget=forms.PasswordInput(
             attrs={
                 "placeholder": "Password",
-                "class": "form-control"
+                "class": "form-control",
+                'data-toggle': 'password',
+                'id': 'password',
             }
         ))
     remember_me = forms.BooleanField(
@@ -58,14 +60,18 @@ class SignUpForm(UserCreationForm):
         widget=forms.PasswordInput(
             attrs={
                 "placeholder": "Password",
-                "class": "form-control"
+                "class": "form-control",
+                'data-toggle': 'password',
+                'id': 'password'
             }
         ))
     password2 = forms.CharField(
         widget=forms.PasswordInput(
             attrs={
                 "placeholder": "Password check",
-                "class": "form-control"
+                "class": "form-control",
+                'data-toggle': 'password',
+                'id': 'password',
             }
         ))
     agree_to_privacy_policy = forms.BooleanField(

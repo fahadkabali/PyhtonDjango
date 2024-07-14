@@ -18,11 +18,14 @@ from django.core.files.storage import FileSystemStorage
 from django.contrib.auth import authenticate, login
 from django.views.decorators.csrf import csrf_protect
 from django.shortcuts import render, redirect
-from django.contrib.auth.views import PasswordResetView
+from django.contrib.auth.views import PasswordResetView, PasswordChangeView
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.decorators import login_required
 from .forms import *
 from .models import *
 
@@ -216,13 +219,40 @@ def delete_account_view(request):
     return render(request, 'accounts/delete_account.html', {'form': form})
 
 #password reset
-class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
-    template_name = 'registration/password_reset.html'
-    email_template_name = 'registration/password_reset_email.html'
-    subject_template_name = 'registration/password_reset_subject.txt'
-    success_message = "We've emailed you instructions for setting your password, " \
-                      "if an account exists with the email you entered. You should receive them shortly." \
-                      " If you don't receive an email, " \
-                      "please make sure you've entered the address you registered with, and check your spam folder."
-    success_url = reverse_lazy('home')
+def reset_password_view(request):
+    if request.method == 'POST':
+        form = PasswordResetForm(request.POST)
+        if form.is_valid():
+            form.save(
+                request=request,
+                use_https=request.is_secure(),
+                email_template_name='registration/password_reset_email.html',
+                subject_template_name='registration/password_reset_subject.txt',
+            )
+            messages.success(
+                request, 
+                "We've emailed you instructions for setting your password, if an account exists with the email you entered. You should receive them shortly. If you don't receive an email, please make sure you've entered the address you registered with, and check your spam folder."
+            )
+            return redirect('home')
+    else:
+        form = PasswordResetForm()
+
+    return render(request, 'registration/password_reset.html', {'form': form})
+
+
+@login_required
+def change_password_view(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Successfully Changed Your Password')
+            return redirect('home')
+    else:
+        form = PasswordChangeForm(request.user)
+
+    return render(request, 'registration/change_password.html', {'form': form})
+
+
 
