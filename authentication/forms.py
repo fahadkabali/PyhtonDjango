@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser
+from .models import *
 from django.core.validators import EmailValidator
 
 
@@ -165,10 +165,15 @@ class UserEditForm(CustomUserForm):
 
 
 #contact form 
-class ContactForm(forms.Form):
-    name = forms.CharField(max_length=100, required=True)
-    email = forms.CharField(validators=[EmailValidator()], required=True)
-    organisation_name = forms.CharField(max_length=100,required=True)
-    phone = forms.CharField(max_length=15)
-    subject = forms.CharField(max_length=100)
-    message = forms.CharField(widget=forms.Textarea)
+class ContactForm(forms.ModelForm):
+    class Meta:
+        model = Contact
+        fields = '__all__'
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control','placeholder': 'Name'}),
+            'organisation_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Organisation Name'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
+            'subject': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Subject'}),
+            'message': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Write your message here...'}),
+        }

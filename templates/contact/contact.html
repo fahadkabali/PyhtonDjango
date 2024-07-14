@@ -1,0 +1,69 @@
+{% extends 'layouts/base-fullscreen.html' %}
+
+{% block title %} Contact Us {% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+
+    <!-- Page content -->
+    <div class="container mt--8 pb-5">
+      <div class="row justify-content-center">
+        <div class="col-lg-5 col-md-7">
+          <div class="card bg-secondary shadow border-0">
+            <div class="card-header bg-transparent pb-3">
+              <div class="text-muted text-center font-weight-bold mt-4">
+                <h2 class="fw-bold">Contact Us</h2>
+              </div>
+            </div>
+            <div class="card-body px-lg-5 py-lg-5">
+              <form method="POST" >
+
+                {% csrf_token %}
+
+                <div class="form-group">
+                  <div class="input-group input-group-alternative">
+                    {{ form.name }}
+                  </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-group input-group-alternative">
+                      {{ form.organisation_name }}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="input-group input-group-alternative">
+                      {{ form.email }}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="input-group input-group-alternative">
+                      {{ form.phone }}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="input-group input-group-alternative">
+                      {{ form.subject}}
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="input-group input-group-alternative">
+                      {{ form.message }}
+                    </div>
+                  </div>
+                <div class="text-center">
+                  <button type="submit" class="btn btn-primary my-4">Send</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}{% endblock javascripts %}
+

@@ -259,42 +259,27 @@ def change_password_view(request):
     return render(request, 'registration/change_password.html', {'form': form})
 
 #contact form view
-def contact(request):
+def contact_view(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
         if form.is_valid():
+            form.save() 
             name = form.cleaned_data['name']
-            email = form.cleaned_data['email']
-            message = form.cleaned_data['message']
-
-
-        EmailMessage(
-            'Contact Form Submission from {}'.format(name),
-            message,
-            'form-response@example.com', # Send from (your website)
-            ['JohnDoe@gmail.com'], # Send to (your admin email)
-            [],
-            reply_to=[email] # Email from the form to get back to
-        ).send()
-
-        return redirect('success')
+            email_subject = f'New contact {form.cleaned_data["email"]}: {form.cleaned_data["subject"]}'
+            organisation_name=form.cleaned_data['organisation_name']
+            email_message = form.cleaned_data['message']
+            send_mail(
+                name,
+                organisation_name,
+                email_subject,
+                email_message,
+                settings.EMAIL_HOST_USER, 
+                [settings.EMAIL_RECEIVING_USER], 
+                fail_silently=False
+            )
+            return render(request, 'contact/success.html')
     else:
-        form = ContactForm()
-    return render(request, 'contact.html', {'form': form})
+        form = ContactForm() 
 
-
-def success(request):
-    form = ContactForm()
-    name = form.cleaned_data['name']
-    email = form.cleaned_data['email']
-    message = form.cleaned_data['message']
-
-    file = open('responses.csv', 'a')
-    writer = csv.writer(file)
-    writer.writerow([name,email,message])
-    file.close()
-
-    return redirect('success')
-
-
-
+    context = {'form': form}
+    return render(request, 'contact/contact.html', context)
