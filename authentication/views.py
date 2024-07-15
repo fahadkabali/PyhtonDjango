@@ -151,13 +151,22 @@ def login_view(request):
     return render(request, "accounts/login.html", {"form": form})
 
 # logout view for users
+
+@login_required
 def user_logout(request):
-    logout(request)
-    messages.success(request, "Logged out successfully!")
-    return redirect("authentication:login")
+    if request.method == 'POST':
+        if 'confirm' in request.POST:
+            logout(request)
+            messages.success(request, "Logged out successfully!")
+            return redirect('authentication:login')
+        elif 'cancel' in request.POST:
+            messages.info(request, "Logout cancelled.")
+            return redirect('authentication:profile') 
+    return render(request, 'accounts/logout_confirm.html')
 
 #view for the profile editing and view
 @csrf_protect
+@login_required
 def profile_view(request):
     user = get_object_or_404(CustomUser, pk=request.user.pk)
     form = UserProfileForm(request.POST or None, request.FILES or None, instance=user)
@@ -170,13 +179,13 @@ def profile_view(request):
                 last_name = form.cleaned_data.get('last_name')
                 username = form.cleaned_data.get('username')
                 organisation_name = form.cleaned_data.get('organisation_name')
-                password = form.cleaned_data.get('password') or None
+                # password = form.cleaned_data.get('password') or None
                 address = form.cleaned_data.get('address')
                 gender = form.cleaned_data.get('gender')
                 profile_pic = request.FILES.get('profile_pic') or None
                 
-                if password:
-                    user.set_password(password)
+                # if password:
+                #     user.set_password(password)
                 if profile_pic:
                     fs = FileSystemStorage()
                     filename = fs.save(profile_pic.name, profile_pic)
@@ -191,8 +200,8 @@ def profile_view(request):
                 user.gender = gender
                 user.save()
                 
-                messages.success(request, "Profile Updated!")
-                return redirect(reverse('profile'))
+                messages.success(request, "Your profile has been updated successfully!.")
+                return redirect(reverse('authentication:profile'))
             else:
                 messages.error(request, "Invalid Data Provided")
         except Exception as e:
@@ -203,18 +212,16 @@ def profile_view(request):
 
 #view for ddeleting user account
 @csrf_protect
+@login_required
 def delete_account_view(request):
     if request.method == 'POST':
         form = AccountDeletionForm(request.POST)
-        if form.is_valid():
-            reason = form.cleaned_data['reason']
-            feedback = form.cleaned_data['feedback']
-            # You can save the reason and feedback to the database if needed
+        if form:
             user = request.user
             user.delete()
             messages.success(request, "Your account has been deleted.")
             logout(request)
-            return redirect('register')
+            return redirect('authentication:register')
         else:
             messages.error(request, "Invalid data provided.")
     else:
@@ -268,15 +275,23 @@ def contact_view(request):
             email_subject = f'New contact {form.cleaned_data["email"]}: {form.cleaned_data["subject"]}'
             organisation_name=form.cleaned_data['organisation_name']
             email_message = form.cleaned_data['message']
-            send_mail(
-                name,
-                organisation_name,
-                email_subject,
-                email_message,
-                settings.EMAIL_HOST_USER, 
-                [settings.EMAIL_RECEIVING_USER], 
-                fail_silently=False
-            )
+            EmailMessage(
+               'Contact Form Submission from {}'.format(name),
+               email_message,
+               'fahadkabali.netfliy.app',
+               ['kabalifahad@gmail.com'], 
+               [],
+               reply_to=[email_subject] 
+           ).send()
+            # send_mail(
+            #     name,
+            #     organisation_name,
+            #     email_subject,
+            #     email_message,
+            #     settings.EMAIL_HOST_USER, 
+            #     [settings.EMAIL_RECEIVING_USER], 
+            #     fail_silently=False
+            # )
             return render(request, 'contact/success.html')
     else:
         form = ContactForm() 

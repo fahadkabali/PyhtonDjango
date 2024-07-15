@@ -1,17 +1,54 @@
 {% extends 'layouts/base.html' %}
-{% block content %}
-    <h1>Search Results</h1>
-    <p>You searched for: "{{ query }}"</p>
 
-    {% if results %}
-        <ul>
-            {% for question in results %}
-                <li>
-                    <a href="{% url 'question_detail' question.id %}">{{ question.text }}</a>
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No results found.</p>
-    {% endif %}
+{% block title %} CSAT: Search results{% endblock title %}
+
+{% block content %}
+  <div class="header bg-primary pb-6">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center py-4">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0">Staff Awareness Assessment</h6>
+            <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+              <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
+                <li class="breadcrumb-item"><a href="#"><i class="fa-solid fa-folder-tree"></i></a></li>
+                <li class="breadcrumb-item"><a href="#">Search results</a></li>
+                <li class="breadcrumb-item active" aria-current="page"></li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>  
+  <!-- Page content -->
+  <div class="container-fluid mt--6">
+    <div class="row">
+      <div class="col">
+        <div class="card mt-4">
+          <!-- Card header -->
+          <div class="container mt-4">
+            <h1 class="mb-4">Search Results</h1>
+            <p class="lead">You searched for: "{{ query }}"</p>
+        
+            {% if results %}
+                <ul class="list-group">
+                    {% for question in results %}
+                        <li class="list-group-item">
+                            <a href="{% url 'question_detail' question.id %}">{{ question.text }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="alert alert-warning" role="alert">
+                    No results found.
+                </div>
+            {% endif %}
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include "includes/footer.html" %}
 {% endblock %}
+

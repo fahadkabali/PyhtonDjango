@@ -1,0 +1,59 @@
+
+
+{% extends 'layouts/base.html' %}
+
+{% block title %}Logout{% endblock title %}
+
+{% block content %}
+  <div class="header bg-primary pb-6">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center py-4">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0">Staff Awareness Assessment</h6>
+            <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+              <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
+                <li class="breadcrumb-item"><a href="#"><i class="fa-solid fa-right-from-bracket"></i></a></li>
+                <li class="breadcrumb-item"><a href="#">Logout</a></li>
+                <li class="breadcrumb-item active" aria-current="page"></li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>  
+  <!-- Page content -->
+  <div class="container-fluid mt--6">
+    <div class="row">
+      <div class="col">
+        <div class="card mt-4">
+          <!-- Card header -->
+          <div class="container mt-5">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-danger text-white">
+                            <h3>Confirm Logout</h3>
+                        </div>
+                        <div class="card-body">
+                            <p class="lead">Are you sure you want to log out?</p>
+                            <form method="post">
+                                {% csrf_token %}
+                                <div class="d-flex justify-content-between">
+                                    <button type="submit" name="confirm" class="btn btn-danger btn-block">Yes, log me out</button>
+                                    <button type="submit" name="cancel" class="btn btn-secondary btn-block">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include "includes/footer.html" %}
+{% endblock %}
+

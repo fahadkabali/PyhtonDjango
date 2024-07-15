@@ -137,17 +137,17 @@ class CustomUserForm(FormSettings):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'profile_pic', 'gender', 'address', 'organisation_name', 'username', 'email', 'password']
+        fields = ['first_name', 'last_name', 'username','organisation_name', 'email','profile_pic', 'gender', 'address']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}),
-            'profile_pic': forms.FileInput(attrs={'class': 'form-control'}),
-            'gender': forms.Select(attrs={'class': 'form-control'}),
-            'address': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Address'}),
             'organisation_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Organisation Name'}),
             'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
-            'password': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}),
+            'profile_pic': forms.FileInput(attrs={'class': 'form-control'}),
+            'gender': forms.Select(attrs={'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Address'}),
+            
         }
 
 class AccountDeletionForm(forms.Form):

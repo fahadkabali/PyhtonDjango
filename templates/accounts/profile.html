@@ -1,6 +1,6 @@
 {% extends 'layouts/base.html' %}
 
-{% block title %} Profile {% endblock title %}
+{% block title %}Profile{% endblock title %}
 
 {% block content %}
 <div class="header pb-6 d-flex align-items-center" 
@@ -22,10 +22,13 @@
   <div class="row">
     <div class="col-xl-4 order-xl-2">
       <div class="card card-profile">
-        <img src="/static/assets/img/theme/img-1-1000x600.jpg" alt="Image placeholder" class="card-img-top">
+        {% if request.user.profile_pic %}
+        <img src="{{ request.user.profile_pic.url }}" alt="Profile picture" class="card-img-top">
+        {% else %}
+        <img src="/static/assets/img/theme/profile-default.jpg" alt="Default image" class="card-img-top">
+        {% endif %}
         <div class="row justify-content-center">
           <div class="col-lg-3 order-lg-2">
-          
           </div>
         </div>
         <div class="card-body pt-0">
@@ -53,20 +56,67 @@
           </div>
         </div>
         <div class="card-body">
-          <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <div class="text-right">
-              <ul class="list-unstyled d-flex justify-content-between">
-                <li><button type="button" class="btn btn-danger mt-3" data-toggle="modal" data-target="#deleteAccountModal">
-                  Delete Account
-                </button></li>
-                <li><button type="submit" class="btn btn-primary mt-3">
-                  Save Changes
-                </button></li>
-              </ul>
-            </div>
-          </form>
+            {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-2" role="alert">
+                    {{ message }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+            {% endif %}
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    {{ form.fullname.label_tag }}
+                    {{ form.fullname }}
+                </div>
+                <div class="form-group">
+                    {{ form.organisation_name.label_tag }}
+                    {{ form.organisation_name }}
+                </div>
+                <div class="form-group">
+                    {{ form.username.label_tag }}
+                    {{ form.username }}
+                </div>
+                <div class="form-group">
+                    {{ form.email.label_tag }}
+                    {{ form.email }}
+                </div>
+                <div class="form-group">
+                    {{ form.first_name.label_tag }}
+                    {{ form.first_name }}
+                </div>
+                <div class="form-group">
+                    {{ form.last_name.label_tag }}
+                    {{ form.last_name }}
+                </div>
+                <div class="form-group">
+                    {{ form.gender.label_tag }}
+                    {{ form.gender }}
+                </div>
+                <div class="form-group">
+                    {{ form.address.label_tag }}
+                    {{ form.address }}
+                </div>
+                <div class="form-group">
+                    {{ form.profile_pic.label_tag }}
+                    {{ form.profile_pic }}
+                </div>
+                <div class="text-center">
+                    <div class="text-right">
+                        <ul class="list-unstyled d-flex justify-content-between">
+                          <li><button type="button" class="btn btn-danger mt-3" data-toggle="modal" data-target="#deleteAccountModal">
+                            Delete Account
+                          </button></li>
+                          <li><button type="submit" class="btn btn-primary mt-3">
+                            Update Profile
+                          </button></li>
+                        </ul>
+                    </div>
+                </div>
+            </form>
         </div>
       </div>
     </div>

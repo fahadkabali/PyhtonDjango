@@ -53,7 +53,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=30, blank=True)
     email = models.EmailField(verbose_name='email address', max_length=255, unique=True)
     gender = models.CharField(max_length=1, choices=GENDER)
-    profile_pic = models.ImageField()
+    profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     address = models.TextField(blank=True)
     fcm_token = models.TextField(default="")
     created_at = models.DateTimeField(auto_now_add=True)

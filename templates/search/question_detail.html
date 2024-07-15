@@ -1,13 +1,51 @@
 {% extends 'layouts/base.html' %}
-{% block content %}
-    <h1>{{ question.text }}</h1>
-    <p>Type: {{ question.get_question_type_display }}</p>
-    <p>Max Score: {{ question.max_score }}</p>
 
-    <h2>Choices:</h2>
-    <ul>
-        {% for choice in choices %}
-            <li>{{ choice.text }} (Score: {{ choice.score }})</li>
-        {% endfor %}
-    </ul>
+{% block title %} CSAT: Staff Awareness Assessment {% endblock title %}
+
+{% block content %}
+  <div class="header bg-primary pb-6">
+    <div class="container-fluid">
+      <div class="header-body">
+        <div class="row align-items-center py-4">
+          <div class="col-lg-6 col-7">
+            <h6 class="h2 text-white d-inline-block mb-0">Staff Awareness Assessment</h6>
+            <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
+              <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
+                <li class="breadcrumb-item"><a href="#"><i class="fa-solid fa-circle-info"></i></a></li>
+                <li class="breadcrumb-item"><a href="#">Awareness Assessment</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Question Details</li>
+              </ol>
+            </nav>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>  
+  <!-- Page content -->
+  <div class="container-fluid mt--6 mb-8">
+    <div class="row">
+      <div class="col">
+        <div class="card mt-4">
+          <!-- Card header -->
+          <div>
+            <div class="container mt-4 mb-6">
+                <h1 class="mb-4">{{ question.text }}</h1>
+                <p><strong>Type:</strong> {{ question.get_question_type_display }}</p>
+                <p><strong>Max Score:</strong> <span class="font-weight-bold ">{{ question.max_score }}</span></p>
+            
+                <h2 class="mt-4">Choices:</h2>
+                <ul class="list-group">
+                    {% for choice in choices %}
+                        <li class="list-group-item mt-2 mb-2">
+                            {{ choice.text }} <i class="fa-solid fa-arrow-right"></i><span class="badge bg-secondary"> Score: {{ choice.score }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% include "includes/footer.html" %}
 {% endblock %}

@@ -27,7 +27,11 @@
           <a class="nav-link pr-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <div class="media align-items-center">
               <span class="avatar avatar-sm rounded-circle">
-                <img alt="Image placeholder" src="/static/assets/img/theme/img-1-1000x600.jpg">
+                {% if request.user.profile_pic %}
+                <img src="{{ request.user.profile_pic.url }}" alt="Profile picture" class="card-img-top">
+                {% else %}
+                <img src="/static/assets/img/theme/user-profile-icon.jpg" alt="Default image" class="card-img-top">
+                {% endif %}
               </span>
               <div class="media-body ml-2 d-none d-lg-block">
                 <span class="mb-0 text-sm font-weight-bold">
