@@ -49,15 +49,14 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     GENDER = [("M", "Male"), ("F", "Female"), ('O', 'Other')]
 
     username = models.CharField(max_length=150, unique=True)
-    fullname = models.CharField(max_length=255, blank=True)
+    fullname = models.CharField(max_length=255)
+    organisation_name = models.CharField(max_length=255)
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=30, blank=True)
-    organisation_name = models.CharField(max_length=255, blank=True)
-    gender = models.CharField(max_length=1, choices=GENDER, blank=True)
     email = models.EmailField(verbose_name='email address', max_length=255, unique=True)
-    avatar = models.ImageField(upload_to='profile_images/',default='default.jpg', blank=True, null=True)
-    address = models.CharField(max_length=255, blank=True)
-    bio = models.TextField(blank=True)
+    gender = models.CharField(max_length=1, choices=GENDER)
+    profile_pic = models.ImageField(upload_to='profile_pics/',default='default.jpg', blank=True, null=True)
+    address = models.TextField(blank=True)
     fcm_token = models.TextField(default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -94,8 +93,23 @@ class Contact(models.Model):
         return self.subject
     
 class Profile(models.Model):
+    GENDER_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other'),
+    ]
 
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    username = models.CharField(max_length=150, unique=True)
+    fullname = models.CharField(max_length=255, blank=True)
+    first_name = models.CharField(max_length=30, blank=True)
+    last_name = models.CharField(max_length=30, blank=True)
+    organisation_name = models.CharField(max_length=255, blank=True)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
+    email = models.EmailField(verbose_name='email address', max_length=255, unique=True)
+    profile_pic = models.ImageField(upload_to='profile_images/',default='default.jpg', blank=True, null=True)
+    address = models.CharField(max_length=255, blank=True)
+    bio = models.TextField(blank=True)
 
     def __str__(self):
         return self.user.username
@@ -103,9 +117,9 @@ class Profile(models.Model):
     def save(self, *args, **kwargs):
         super().save()
 
-        img = Image.open(self.avatar.path)
+        img = Image.open(self.profile_pic.path)
 
         if img.height > 100 or img.width > 100:
             new_img = (100, 100)
             img.thumbnail(new_img)
-            img.save(self.avatar.path)
+            img.save(self.profile_pic.path)

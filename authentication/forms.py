@@ -102,7 +102,8 @@ class CustomUserForm(FormSettings):
     last_name = forms.CharField(required=True)
     username = forms.CharField(required=True)
     organisation_name = forms.CharField(required=True)
-    address = forms.CharField(widget=forms.Textarea)
+    address = forms.CharField(required=False)
+    bio = forms.CharField(widget=forms.Textarea)
     password = forms.CharField(widget=forms.PasswordInput, required=False)
     profile_pic = forms.ImageField(required=False)
 
@@ -129,26 +130,25 @@ class CustomUserForm(FormSettings):
 
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'username', 'email', 'organisation_name', 'gender', 'password', 'profile_pic', 'address']
+        fields = ['first_name', 'last_name', 'username', 'email', 'organisation_name', 'gender', 'password', 'profile_pic', 'address', 'bio']
 
 
 #form for editing and updating the user details
 
 class UserProfileForm(forms.ModelForm):
     class Meta:
-        model = CustomUser
-        fields = ['first_name', 'last_name', 'username','organisation_name', 'email','profile_pic', 'gender', 'address', 'bio']
+        model = Profile
+        fields = ['first_name', 'last_name', 'profile_pic', 'gender', 'address', 'organisation_name', 'username', 'email', 'bio']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}),
+            'profile_pic': forms.FileInput(attrs={'class': 'form-control'}),
+            'gender': forms.Select(attrs={'class': 'form-control'}),
+            'address':forms.TextInput(attrs={'class':'form-control', 'placeholder' : 'Address'}),
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Bio'}),
             'organisation_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Organisation Name'}),
             'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
-            'avatar': forms.FileInput(attrs={'class': 'form-control'}),
-            'gender': forms.Select(attrs={'class': 'form-control'}),
-            'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Address'}),
-            'bio': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Bio'}),
-            
         }
 
 class AccountDeletionForm(forms.Form):
