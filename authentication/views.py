@@ -279,19 +279,25 @@ def reset_password_view(request):
     return render(request, 'registration/password_reset.html', {'form': form})
 
 
-@login_required
-def change_password_view(request):
-    if request.method == 'POST':
-        form = PasswordChangeForm(request.user, request.POST)
-        if form.is_valid():
-            user = form.save()
-            update_session_auth_hash(request, user)
-            messages.success(request, 'Successfully Changed Your Password')
-            return redirect('home')
-    else:
-        form = PasswordChangeForm(request.user)
+# @login_required
+# def change_password_view(request):
+#     if request.method == 'POST':
+#         form = PasswordChangeForm(request.user, request.POST)
+#         if form.is_valid():
+#             user = form.save()
+#             update_session_auth_hash(request, user)
+#             messages.success(request, 'Successfully Changed Your Password')
+#             return redirect('home')
+#     else:
+#         form = PasswordChangeForm(request.user)
 
-    return render(request, 'registration/change_password.html', {'form': form})
+#     return render(request, 'registration/change_password.html', {'form': form})
+
+@method_decorator(login_required, name='dispatch')
+class ChangePasswordView(SuccessMessageMixin, PasswordChangeView):
+    template_name = 'registration/change_password.html'
+    success_message = "Successfully Changed Your Password"
+    success_url = reverse_lazy('home')
 
 #contact form view
 def contact_view(request):
