@@ -137,16 +137,17 @@ class CustomUserForm(FormSettings):
 class UserProfileForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ['first_name', 'last_name', 'username','organisation_name', 'email','profile_pic', 'gender', 'address']
+        fields = ['first_name', 'last_name', 'username','organisation_name', 'email','profile_pic', 'gender', 'address', 'bio']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'First Name'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Last Name'}),
             'organisation_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Organisation Name'}),
             'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
-            'profile_pic': forms.FileInput(attrs={'class': 'form-control'}),
+            'avatar': forms.FileInput(attrs={'class': 'form-control'}),
             'gender': forms.Select(attrs={'class': 'form-control'}),
-            'address': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Address'}),
+            'address': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Address'}),
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Bio'}),
             
         }
 

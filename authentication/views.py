@@ -182,15 +182,16 @@ def profile_view(request):
                 # password = form.cleaned_data.get('password') or None
                 address = form.cleaned_data.get('address')
                 gender = form.cleaned_data.get('gender')
-                profile_pic = request.FILES.get('profile_pic') or None
+                bio = form.changed_data.get('bio')
+                avatar = request.FILES.get('avatar') or None
                 
                 # if password:
                 #     user.set_password(password)
-                if profile_pic:
+                if avatar:
                     fs = FileSystemStorage()
-                    filename = fs.save(profile_pic.name, profile_pic)
-                    profile_pic_url = fs.url(filename)
-                    user.profile_pic = profile_pic_url
+                    filename = fs.save(avatar.name, avatar)
+                    avatar_url = fs.url(filename)
+                    user.avatar= avatar_url
 
                 user.first_name = first_name
                 user.last_name = last_name
@@ -198,6 +199,7 @@ def profile_view(request):
                 user.organisation_name = organisation_name
                 user.address = address
                 user.gender = gender
+                user.bio = bio
                 user.save()
                 
                 messages.success(request, "Your profile has been updated successfully!.")

@@ -4,6 +4,8 @@ from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.utils.translation import gettext_lazy as _
+from PIL import Image
+
 
 # Create your models here.
 
@@ -44,17 +46,18 @@ class CustomUserManager(BaseUserManager):
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
 
-    GENDER = [("M", "Male"), ("F", "Female")]
+    GENDER = [("M", "Male"), ("F", "Female"), ('O', 'Other')]
 
     username = models.CharField(max_length=150, unique=True)
-    fullname = models.CharField(max_length=255)
-    organisation_name = models.CharField(max_length=255)
+    fullname = models.CharField(max_length=255, blank=True)
     first_name = models.CharField(max_length=30, blank=True)
     last_name = models.CharField(max_length=30, blank=True)
+    organisation_name = models.CharField(max_length=255, blank=True)
+    gender = models.CharField(max_length=1, choices=GENDER, blank=True)
     email = models.EmailField(verbose_name='email address', max_length=255, unique=True)
-    gender = models.CharField(max_length=1, choices=GENDER)
-    profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
-    address = models.TextField(blank=True)
+    avatar = models.ImageField(upload_to='profile_images/',default='default.jpg', blank=True, null=True)
+    address = models.CharField(max_length=255, blank=True)
+    bio = models.TextField(blank=True)
     fcm_token = models.TextField(default="")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -89,3 +92,20 @@ class Contact(models.Model):
 
     def __str__(self):
         return self.subject
+    
+class Profile(models.Model):
+
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.username
+    
+    def save(self, *args, **kwargs):
+        super().save()
+
+        img = Image.open(self.avatar.path)
+
+        if img.height > 100 or img.width > 100:
+            new_img = (100, 100)
+            img.thumbnail(new_img)
+            img.save(self.avatar.path)
