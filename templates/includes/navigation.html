@@ -28,9 +28,9 @@
             <div class="media align-items-center">
               <span class="avatar avatar-sm rounded-circle">
                 {% if request.user.profile_pic %}
-                <img src="{{ request.user.profile_pic.url }}" alt="Profile picture" class="card-img-top">
+                <img src="{{ request.user.profile_pic.url }}" alt="Profile picture" class="card-img-top img-fluid w-100 h-100">
                 {% else %}
-                <img src="/static/assets/img/theme/user-profile-icon.jpg" alt="Default image" class="card-img-top">
+                <img src="/static/assets/img/theme/user-profile-icon.jpg" alt="Default image" class="card-img-top img-fluid w-100 h-100">
                 {% endif %}
               </span>
               <div class="media-body ml-2 d-none d-lg-block">

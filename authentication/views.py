@@ -212,8 +212,6 @@ def user_logout(request):
 #     context = {'form': form, 'user': request.user}
 #     return render(request, 'accounts/profile.html', context)
 
-
-
 def profile_view(request):
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES, instance=request.user)
@@ -225,13 +223,15 @@ def profile_view(request):
         form = UserProfileForm(instance=request.user)
     return render(request, 'accounts/profile.html', {'form': form})
 
+
+
 #view for ddeleting user account
 @csrf_protect
 @login_required
 def delete_account_view(request):
     if request.method == 'POST':
         form = AccountDeletionForm(request.POST)
-        if form:
+        if form.is_valid():  # Ensure the form is valid
             user = request.user
             user.delete()
             messages.success(request, "Your account has been deleted.")
@@ -243,6 +243,19 @@ def delete_account_view(request):
         form = AccountDeletionForm()
 
     return render(request, 'accounts/delete_account.html', {'form': form})
+
+# def delete_account_view(request):
+#     print("Delete account view called")
+#     if request.method == 'POST':
+#         print("POST request received")
+#         user = request.user
+#         user.delete()
+#         messages.success(request, "Your account has been deleted successfully.")
+#         logout(request)
+#         return redirect('authentication:register')
+    
+#     print("Rendering template")
+#     return render(request, 'accounts/delete_account.html')
 
 #password reset
 def reset_password_view(request):
