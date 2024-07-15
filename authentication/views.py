@@ -167,50 +167,63 @@ def user_logout(request):
 #view for the profile editing and view
 @csrf_protect
 @login_required
+# def profile_view(request):
+#     user = get_object_or_404(CustomUser, pk=request.user.pk)
+#     form = UserProfileForm(request.POST or None, request.FILES or None, instance=user)
+#     context = {'form': form, 'page_title': 'View/Edit Profile'}
+
+#     if request.method == 'POST':
+#         try:
+#             if form.is_valid():
+#                 first_name = form.cleaned_data.get('first_name')
+#                 last_name = form.cleaned_data.get('last_name')
+#                 username = form.cleaned_data.get('username')
+#                 organisation_name = form.cleaned_data.get('organisation_name')
+#                 bio = form.changed_data.get('bio')
+#                 # password = form.cleaned_data.get('password') or None
+#                 address = form.cleaned_data.get('address')
+#                 gender = form.cleaned_data.get('gender')
+#                 profile_pic = request.FILES.get('profile_pic') or None
+                
+#                 # if password:
+#                 #     user.set_password(password)
+#                 if profile_pic:
+#                     fs = FileSystemStorage()
+#                     filename = fs.save(profile_pic.name, profile_pic)
+#                     profile_pic_url = fs.url(filename)
+#                     user.profile_pic = profile_pic_url
+
+#                 user.first_name = first_name
+#                 user.last_name = last_name
+#                 user.username = username
+#                 user.organisation_name = organisation_name
+#                 user.address = address
+#                 user.gender = gender
+#                 user.bio = bio
+#                 user.save()
+                
+#                 messages.success(request, "Your profile has been updated successfully!.")
+#                 return redirect(reverse('authentication:profile'))
+#             else:
+#                 messages.error(request, "Invalid Data Provided")
+#         except Exception as e:
+#             messages.error(request, "Error Occurred While Updating Profile " + str(e))
+
+#     context = {'form': form, 'user': request.user}
+#     return render(request, 'accounts/profile.html', context)
+
+
+
 def profile_view(request):
-    user = get_object_or_404(CustomUser, pk=request.user.pk)
-    form = UserProfileForm(request.POST or None, request.FILES or None, instance=user)
-    context = {'form': form, 'page_title': 'View/Edit Profile'}
-
     if request.method == 'POST':
-        try:
-            if form.is_valid():
-                first_name = form.cleaned_data.get('first_name')
-                last_name = form.cleaned_data.get('last_name')
-                username = form.cleaned_data.get('username')
-                organisation_name = form.cleaned_data.get('organisation_name')
-                bio = form.changed_data.get('bio')
-                # password = form.cleaned_data.get('password') or None
-                address = form.cleaned_data.get('address')
-                gender = form.cleaned_data.get('gender')
-                profile_pic = request.FILES.get('profile_pic') or None
-                
-                # if password:
-                #     user.set_password(password)
-                if profile_pic:
-                    fs = FileSystemStorage()
-                    filename = fs.save(profile_pic.name, profile_pic)
-                    profile_pic_url = fs.url(filename)
-                    user.profile_pic = profile_pic_url
-
-                user.first_name = first_name
-                user.last_name = last_name
-                user.username = username
-                user.organisation_name = organisation_name
-                user.address = address
-                user.gender = gender
-                user.bio = bio
-                user.save()
-                
-                messages.success(request, "Your profile has been updated successfully!.")
-                return redirect(reverse('authentication:profile'))
-            else:
-                messages.error(request, "Invalid Data Provided")
-        except Exception as e:
-            messages.error(request, "Error Occurred While Updating Profile " + str(e))
-
-    context = {'form': form, 'user': request.user}
-    return render(request, 'accounts/profile.html', context)
+        form = UserProfileForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile has been updated successfully.')
+            return redirect('authentication:profile')
+    else:
+        form = UserProfileForm(instance=request.user)
+    return render(request, 'accounts/profile.html', {'form': form})
 
 #view for ddeleting user account
 @csrf_protect
