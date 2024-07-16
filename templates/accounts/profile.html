@@ -58,7 +58,7 @@
         <div class="card-body">
             {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mt-2" role="alert">
+                <div class="alert alert-warning alert-dismissible fade show mt-2" role="alert">
                     {{ message }}
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -83,7 +83,7 @@
                 <div class="form-group">
                     {{ form.email.label_tag }}
                     {{ form.email }}
-                    <a href="{% url 'password_change' %}">Change Password</a>
+                    <a href="{% url 'authentication:password_change' %}">Change Password</a>
                     <hr>
                 </div>
                

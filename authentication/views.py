@@ -23,6 +23,8 @@ from django.contrib.auth.views import PasswordResetView, PasswordChangeView
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
 from django.contrib.auth.forms import PasswordResetForm
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.views import PasswordChangeView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
@@ -164,9 +166,7 @@ def user_logout(request):
             return redirect('authentication:profile') 
     return render(request, 'accounts/logout_confirm.html')
 
-#view for the profile editing and view
-@csrf_protect
-@login_required
+
 # def profile_view(request):
 #     user = get_object_or_404(CustomUser, pk=request.user.pk)
 #     form = UserProfileForm(request.POST or None, request.FILES or None, instance=user)
@@ -212,6 +212,10 @@ def user_logout(request):
 #     context = {'form': form, 'user': request.user}
 #     return render(request, 'accounts/profile.html', context)
 
+
+#view for the profile editing and view
+@csrf_protect
+@login_required
 def profile_view(request):
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES, instance=request.user)
@@ -225,37 +229,25 @@ def profile_view(request):
 
 
 
-#view for ddeleting user account
-@csrf_protect
+#view for deleting user account
 @login_required
 def delete_account_view(request):
     if request.method == 'POST':
         form = AccountDeletionForm(request.POST)
-        if form.is_valid():  # Ensure the form is valid
+        if 'confirm' in request.POST:
             user = request.user
             user.delete()
-            messages.success(request, "Your account has been deleted.")
             logout(request)
+            messages.success(request, "Your account has been deleted.")
             return redirect('authentication:register')
-        else:
-            messages.error(request, "Invalid data provided.")
+        elif 'cancel' in request.POST:
+            messages.info(request, "Delete cancelled.")
+            return redirect('authentication:profile') 
     else:
         form = AccountDeletionForm()
 
     return render(request, 'accounts/delete_account.html', {'form': form})
 
-# def delete_account_view(request):
-#     print("Delete account view called")
-#     if request.method == 'POST':
-#         print("POST request received")
-#         user = request.user
-#         user.delete()
-#         messages.success(request, "Your account has been deleted successfully.")
-#         logout(request)
-#         return redirect('authentication:register')
-    
-#     print("Rendering template")
-#     return render(request, 'accounts/delete_account.html')
 
 #password reset
 def reset_password_view(request):
@@ -279,25 +271,19 @@ def reset_password_view(request):
     return render(request, 'registration/password_reset.html', {'form': form})
 
 
-# @login_required
-# def change_password_view(request):
-#     if request.method == 'POST':
-#         form = PasswordChangeForm(request.user, request.POST)
-#         if form.is_valid():
-#             user = form.save()
-#             update_session_auth_hash(request, user)
-#             messages.success(request, 'Successfully Changed Your Password')
-#             return redirect('home')
-#     else:
-#         form = PasswordChangeForm(request.user)
+@login_required
+def change_password_view(request):
+    if request.method == 'POST':
+        form = ChangePasswordForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, 'Successfully Changed Your Password')
+            return redirect('authentication:profile')
+    else:
+        form = ChangePasswordForm(request.user)
 
-#     return render(request, 'registration/change_password.html', {'form': form})
-
-@method_decorator(login_required, name='dispatch')
-class ChangePasswordView(SuccessMessageMixin, PasswordChangeView):
-    template_name = 'registration/change_password.html'
-    success_message = "Successfully Changed Your Password"
-    success_url = reverse_lazy('home')
+    return render(request, 'registration/change_password.html', {'form': form})
 
 #contact form view
 def contact_view(request):
@@ -311,6 +297,7 @@ def contact_view(request):
             email_message = form.cleaned_data['message']
             EmailMessage(
                'Contact Form Submission from {}'.format(name),
+               organisation_name,
                email_message,
                'fahadkabali.netfliy.app',
                ['kabalifahad@gmail.com'], 

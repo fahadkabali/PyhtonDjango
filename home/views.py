@@ -50,32 +50,45 @@ def index(request):
 def take_assessment(request):
     if request.method == 'POST':
         responses = []
-        for question in Question.objects.all():
+        total_score = 0
+        questions = Question.objects.all()
+
+        for question in questions:
             if question.question_type == Question.SINGLE_CHOICE:
                 choice_id = request.POST.get(f'question_{question.id}')
-                if choice_id:
-                    try:
-                        choice = Choice.objects.get(id=choice_id)
-                        response = UserResponse(user=request.user, question=question)
-                        response.save()
-                        response.selected_choices.add(choice)
-                        responses.append(response)
-                    except Choice.DoesNotExist:
-                        messages.error(request, f"Choice for question {question.id} does not exist.")
-                        return redirect('take_assessment')  # Redirect back to the assessment page
-            elif question.question_type == Question.MULTIPLE_CHOICE:
-                choice_ids = request.POST.getlist(f'question_{question.id}')
-                if choice_ids:
+                if not choice_id:
+                    messages.error(request, f"All questions must be answered.")
+                    return redirect('take_assessment')
+                try:
+                    choice = Choice.objects.get(id=choice_id)
                     response = UserResponse(user=request.user, question=question)
                     response.save()
-                    choices = Choice.objects.filter(id__in=choice_ids)
-                    if choices.exists():
-                        for choice in choices:
-                            response.selected_choices.add(choice)
-                        responses.append(response)
-                    else:
-                        messages.error(request, f"One or more choices for question {question.id} do not exist.")
-                        return redirect('take_assessment')  # Redirect back to the assessment page
+                    response.selected_choices.add(choice)
+                    responses.append(response)
+                    total_score += choice.score
+                except Choice.DoesNotExist:
+                    messages.error(request, f"Choice for question {question.id} does not exist.")
+                    return redirect('take_assessment')
+            elif question.question_type == Question.MULTIPLE_CHOICE:
+                choice_ids = request.POST.getlist(f'question_{question.id}')
+                if not choice_ids:
+                    messages.error(request, f"All questions must be answered.")
+                    return redirect('take_assessment')
+                response = UserResponse(user=request.user, question=question)
+                response.save()
+                choices = Choice.objects.filter(id__in=choice_ids)
+                if choices.exists():
+                    for choice in choices:
+                        response.selected_choices.add(choice)
+                        total_score += choice.score
+                    responses.append(response)
+                else:
+                    messages.error(request, f"One or more choices for question {question.id} do not exist.")
+                    return redirect('take_assessment')
+
+        # Ensure the total score does not exceed 100
+        if total_score > 100:
+            total_score = 100
 
         return redirect('assessment_result')
 
@@ -113,12 +126,12 @@ def assessment_result(request):
             "Review and revise access controls periodically to ensure least privilege access",
             "Enhance physical security measures for data centers and critical infrastructure",
             "Emphasize the importance of cyber security awareness and training:",
-            "   - This investment prevents greater costs resulting from avoidable data breaches.",
-            "   - Educate employees and business owners on effective incident response and risk management.",
-            "   - Provide guidance on fraud prevention, phishing awareness, identity theft, and scams.",
-            "   - Help employees understand common system vulnerabilities and recognize suspicious activities.",
-            "   - Encourage a culture where security considerations are integrated into daily decision-making.",
-            "   - Ensure compliance with company security standards, policies, and procedures."
+            "   * This investment prevents greater costs resulting from avoidable data breaches.",
+            "   * Educate employees and business owners on effective incident response and risk management.",
+            "   * Provide guidance on fraud prevention, phishing awareness, identity theft, and scams.",
+            "   * Help employees understand common system vulnerabilities and recognize suspicious activities.",
+            "   * Encourage a culture where security considerations are integrated into daily decision-making.",
+            "   * Ensure compliance with company security standards, policies, and procedures."
         ]
 
 

@@ -163,7 +163,7 @@ class UserProfileForm(forms.ModelForm):
         }
 
 class AccountDeletionForm(forms.Form):
-    reason = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Reason for deleting your account', 'rows': 3}), required=True)
+    reason = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Reason for deleting your account', 'rows': 3}), required=False)
     feedback = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Additional feedback (optional)', 'rows': 3}), required=False)
     confirm_delete = forms.BooleanField(widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}), required=True)
 
@@ -189,3 +189,8 @@ class ContactForm(forms.ModelForm):
             'subject': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Subject'}),
             'message': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Write your message here...'}),
         }
+#password reset form 
+class ChangePasswordForm(forms.Form):
+    old_password = forms.CharField(widget=forms.PasswordInput())
+    new_password = forms.CharField(widget=forms.PasswordInput())
+    confirm_password = forms.CharField(widget=forms.PasswordInput())

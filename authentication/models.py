@@ -62,8 +62,8 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     updated_at = models.DateTimeField(auto_now=True)
     
     is_active = models.BooleanField(default=True)
-    is_admin = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 
