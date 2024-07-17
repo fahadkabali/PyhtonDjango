@@ -50,45 +50,32 @@ def index(request):
 def take_assessment(request):
     if request.method == 'POST':
         responses = []
-        total_score = 0
-        questions = Question.objects.all()
-
-        for question in questions:
+        for question in Question.objects.all():
             if question.question_type == Question.SINGLE_CHOICE:
                 choice_id = request.POST.get(f'question_{question.id}')
-                if not choice_id:
-                    messages.error(request, f"All questions must be answered.")
-                    return redirect('take_assessment')
-                try:
-                    choice = Choice.objects.get(id=choice_id)
-                    response = UserResponse(user=request.user, question=question)
-                    response.save()
-                    response.selected_choices.add(choice)
-                    responses.append(response)
-                    total_score += choice.score
-                except Choice.DoesNotExist:
-                    messages.error(request, f"Choice for question {question.id} does not exist.")
-                    return redirect('take_assessment')
+                if choice_id:
+                    try:
+                        choice = Choice.objects.get(id=choice_id)
+                        response = UserResponse(user=request.user, question=question)
+                        response.save()
+                        response.selected_choices.add(choice)
+                        responses.append(response)
+                    except Choice.DoesNotExist:
+                        messages.error(request, f"Choice for question {question.id} does not exist.")
+                        return redirect('take_assessment')  # Redirect back to the assessment page
             elif question.question_type == Question.MULTIPLE_CHOICE:
                 choice_ids = request.POST.getlist(f'question_{question.id}')
-                if not choice_ids:
-                    messages.error(request, f"All questions must be answered.")
-                    return redirect('take_assessment')
-                response = UserResponse(user=request.user, question=question)
-                response.save()
-                choices = Choice.objects.filter(id__in=choice_ids)
-                if choices.exists():
-                    for choice in choices:
-                        response.selected_choices.add(choice)
-                        total_score += choice.score
-                    responses.append(response)
-                else:
-                    messages.error(request, f"One or more choices for question {question.id} do not exist.")
-                    return redirect('take_assessment')
-
-        # Ensure the total score does not exceed 100
-        if total_score > 100:
-            total_score = 100
+                if choice_ids:
+                    response = UserResponse(user=request.user, question=question)
+                    response.save()
+                    choices = Choice.objects.filter(id__in=choice_ids)
+                    if choices.exists():
+                        for choice in choices:
+                            response.selected_choices.add(choice)
+                        responses.append(response)
+                    else:
+                        messages.error(request, f"One or more choices for question {question.id} do not exist.")
+                        return redirect('take_assessment')  # Redirect back to the assessment page
 
         return redirect('assessment_result')
 

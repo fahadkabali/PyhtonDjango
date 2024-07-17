@@ -67,37 +67,22 @@
     </div>
   </div>
   {% include "includes/footer.html" %}
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var form = document.querySelector('form');
-        form.addEventListener('submit', function(e) {
-            var allAnswered = true;
-            var questions = document.querySelectorAll('.question');
-            questions.forEach(function(question) {
-                var choices = question.querySelectorAll('input[type="radio"], input[type="checkbox"]');
-                var oneChecked = false;
-                choices.forEach(function(choice) {
-                    if (choice.checked) {
-                        oneChecked = true;
-                    }
-                });
-                if (!oneChecked) {
-                    allAnswered = false;
-                }
-            });
-            if (!allAnswered) {
-                e.preventDefault();
-                alert('Please answer all questions before submitting.');
-            }
-        });
-
-        form.addEventListener('reset', function(e) {
+    <script>
+        document.querySelector('form').addEventListener('reset', function(e) {
+            // Prevent default reset action
+            e.preventDefault();
+            
+            // Optionally, clear the CSRF token input field
+            document.querySelector('[name="{{ csrf_token }}"]').value = '';
+            
             // Clear other inputs
             var inputs = document.querySelectorAll('input[type="radio"], input[type="checkbox"]');
             inputs.forEach(function(input) {
                 input.checked = false;
             });
+            
+            // Optionally, trigger the reset event again to visually reset the form
+            this.reset();
         });
-    });
-  </script>
+    </script>
 {% endblock %}

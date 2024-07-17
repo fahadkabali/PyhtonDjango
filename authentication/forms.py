@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import *
 from django.core.validators import EmailValidator
+from django.contrib.auth.forms import PasswordChangeForm
+
 
 
 
@@ -190,7 +192,16 @@ class ContactForm(forms.ModelForm):
             'message': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Write your message here...'}),
         }
 #password reset form 
-class ChangePasswordForm(forms.Form):
-    old_password = forms.CharField(widget=forms.PasswordInput())
-    new_password = forms.CharField(widget=forms.PasswordInput())
-    confirm_password = forms.CharField(widget=forms.PasswordInput())
+# class ChangePasswordForm(PasswordChangeForm):
+#     class Meta:
+#         model = CustomUser
+#         fields = ['old_password', 'new_password1', 'new_password2']
+    # old_password = forms.CharField(widget=forms.PasswordInput())
+    # new_password = forms.CharField(widget=forms.PasswordInput())
+    # confirm_password = forms.CharField(widget=forms.PasswordInput())
+
+# class CustomPasswordChangeForm(PasswordChangeForm):
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         for fieldname in ['old_password', 'new_password1', 'new_password2']:
+#             self.fields[fieldname].help_text = None

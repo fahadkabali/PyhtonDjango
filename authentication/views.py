@@ -248,8 +248,9 @@ def delete_account_view(request):
 
     return render(request, 'accounts/delete_account.html', {'form': form})
 
-
-#password reset
+###########################################################################
+#############################password reset################################
+###########################################################################
 def reset_password_view(request):
     if request.method == 'POST':
         form = PasswordResetForm(request.POST)
@@ -270,23 +271,45 @@ def reset_password_view(request):
 
     return render(request, 'registration/password_reset.html', {'form': form})
 
+###############################################################################
+##########################password change view#################################
+###############################################################################
 
 @login_required
 def change_password_view(request):
-    if request.method == 'POST':
-        form = ChangePasswordForm(request.user, request.POST)
+    if request.method == "POST":
+        form = PasswordChangeForm(request.user, request.POST)
         if form.is_valid():
-            try:
-                user = form.save()
-                update_session_auth_hash(request, user)  # Important to prevent the user from being logged out
-                messages.success(request, 'Successfully Changed Your Password')
-                return redirect('authentication:profile')
-            except Exception as e:
-                messages.error(request, f'An error occurred: {str(e)}')
+            user = form.save()
+            update_session_auth_hash(request, user)
+            messages.success(request, "Your password was successfully updated!")
+            return redirect("authentication:profile")
+        else:
+            messages.error(request, "Please correct the error(s) below. ")
     else:
-        form = ChangePasswordForm(request.user)
+        form = PasswordChangeForm(request.user)
+    return render(
+        request,
+        "registration/change_password.html",
+        {
+            "form": form,
+        },
+    )
+# def change_password_view(request):
+#     if request.method == 'POST':
+#         form = ChangePasswordForm(request.user, request.POST)
+#         if form.is_valid():
+#             try:
+#                 user = form.save()
+#                 update_session_auth_hash(request, user)  # Important to prevent the user from being logged out
+#                 messages.success(request, 'Successfully Changed Your Password')
+#                 return redirect('authentication:profile')
+#             except Exception as e:
+#                 messages.error(request, f'An error occurred: {str(e)}')
+#     else:
+#         form = ChangePasswordForm(request.user)
     
-    return render(request, 'registration/change_password.html', {'form': form})
+#     return render(request, 'registration/change_password.html', {'form': form})
 
 #contact form view
 def contact_view(request):
