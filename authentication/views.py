@@ -276,13 +276,16 @@ def change_password_view(request):
     if request.method == 'POST':
         form = ChangePasswordForm(request.user, request.POST)
         if form.is_valid():
-            user = form.save()
-            update_session_auth_hash(request, user)
-            messages.success(request, 'Successfully Changed Your Password')
-            return redirect('authentication:profile')
+            try:
+                user = form.save()
+                update_session_auth_hash(request, user)  # Important to prevent the user from being logged out
+                messages.success(request, 'Successfully Changed Your Password')
+                return redirect('authentication:profile')
+            except Exception as e:
+                messages.error(request, f'An error occurred: {str(e)}')
     else:
         form = ChangePasswordForm(request.user)
-
+    
     return render(request, 'registration/change_password.html', {'form': form})
 
 #contact form view
