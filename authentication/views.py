@@ -109,8 +109,10 @@ def register_user(request):
         form = SignUpForm()
 
     return render(request, "accounts/register.html", {"form": form})
+############################################################################
+#######################view for account activation##########################
+############################################################################
 
-#view for account activation
 @csrf_protect
 def activate(request, uidb64, token):
     try:
@@ -152,7 +154,9 @@ def login_view(request):
 
     return render(request, "accounts/login.html", {"form": form})
 
-# logout view for users
+###################################################################
+################### logout view for users###########################
+###################################################################
 
 @login_required
 def user_logout(request):
@@ -212,8 +216,9 @@ def user_logout(request):
 #     context = {'form': form, 'user': request.user}
 #     return render(request, 'accounts/profile.html', context)
 
-
-#view for the profile editing and view
+###############################################################################################
+#############################view for the profile editing and view##############################
+###############################################################################################
 @csrf_protect
 @login_required
 def profile_view(request):
@@ -228,8 +233,10 @@ def profile_view(request):
     return render(request, 'accounts/profile.html', {'form': form})
 
 
+#####################################################################################
+##########################view for deleting user account#############################
+#####################################################################################
 
-#view for deleting user account
 @login_required
 def delete_account_view(request):
     if request.method == 'POST':
@@ -295,9 +302,10 @@ def change_password_view(request):
             "form": form,
         },
     )
+
 # def change_password_view(request):
 #     if request.method == 'POST':
-#         form = ChangePasswordForm(request.user, request.POST)
+#         form = PasswordChangeForm(request.user, request.POST)
 #         if form.is_valid():
 #             try:
 #                 user = form.save()
@@ -307,11 +315,13 @@ def change_password_view(request):
 #             except Exception as e:
 #                 messages.error(request, f'An error occurred: {str(e)}')
 #     else:
-#         form = ChangePasswordForm(request.user)
+#         form = PasswordChangeForm(request.user)
     
 #     return render(request, 'registration/change_password.html', {'form': form})
 
-#contact form view
+#################################################################################
+###############################contact form view#################################
+#################################################################################
 def contact_view(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
