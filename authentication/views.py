@@ -258,6 +258,7 @@ def delete_account_view(request):
 ###########################################################################
 #############################password reset################################
 ###########################################################################
+
 def reset_password_view(request):
     if request.method == 'POST':
         form = PasswordResetForm(request.POST)
@@ -292,7 +293,8 @@ def change_password_view(request):
             messages.success(request, "Your password was successfully updated!")
             return redirect("authentication:profile")
         else:
-            messages.error(request, "Please correct the error(s) below. ")
+            pass
+            # messages.error(request, "Please correct the error(s) below. ")
     else:
         form = PasswordChangeForm(request.user)
     return render(
