@@ -23,6 +23,9 @@ from django.db.models import Q
 
 
 User = get_user_model()
+###############################################################################################
+##################################dashboard view ###############################################
+################################################################################################
 
 @login_required
 def index(request):
@@ -45,7 +48,9 @@ def index(request):
         'total_score': total_score,
         'user_count':user_count
     })
-
+###############################################################################################################
+##########################################view for taking assessment ##########################################
+###############################################################################################################
 @login_required
 def take_assessment(request):
     if request.method == 'POST':
@@ -82,6 +87,9 @@ def take_assessment(request):
     questions = Question.objects.all()
     return render(request, 'assessment/take_assessment.html', {'questions': questions})
 
+#####################################################################################################################
+#####################################Asssessment view################################################################
+#####################################################################################################################
 @login_required
 def assessment_result(request):
     responses = UserResponse.objects.filter(user=request.user)
@@ -134,7 +142,9 @@ def assessment_result(request):
         'total_score': total_score
     })
 
-
+################################################################################################
+############################### view for generating results#####################################
+################################################################################################
 @login_required
 def generate_certificate(request):
     responses = UserResponse.objects.filter(user=request.user)
@@ -215,7 +225,9 @@ def generate_certificate(request):
     response['Content-Disposition'] = f'attachment; filename=certificate_{user.username}.pdf'
     return response
 
-#search button 
+################################################################################################
+###############################search button ###################################################
+################################################################################################
 def search_view(request):
     query = request.GET.get('q', '')
     results = Question.objects.filter(Q(text__icontains=query))
