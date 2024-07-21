@@ -43,7 +43,7 @@ python manage.py runserver
 Open your browser and go to http://127.0.0.1:8000 to access the application.
 
 Usage
-User Authentication
+Authentication
 Register a new account or log in with an existing account.
 Navigate to the profile page to update user information.
 Taking an Assessment
@@ -63,12 +63,12 @@ csat-tool/
 │   ├── urls.py
 │   ├── wsgi.py
 │   └── ...
-├── accounts/
+├── authentication/
 │   ├── templates/
 │   ├── views.py
 │   ├── forms.py
 │   └── ...
-├── assessment/
+├── home/
 │   ├── templates/
 │   ├── views.py
 │   ├── models.py
@@ -76,5 +76,3 @@ csat-tool/
 ├── manage.py
 ├── requirements.txt
 └── README.md
-Contributing
-If you would like to contribute to this project, please fork the repository and submit a pull request. We welcome bug reports, feature requests, and code improvements.
