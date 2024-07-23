@@ -30,6 +30,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.core.mail import EmailMessage
+from django.utils import timezone
 from .forms import *
 from .models import *
 import csv
@@ -37,9 +38,9 @@ import csv
 
 User = get_user_model()
 
-###################################################################################################
-###################################registration account view#######################################
-###################################################################################################
+################################################################################################################
+###################################registration account view###################################################
+################################################################################################################
 @csrf_protect
 def register_user(request):
     if request.method == "POST":
@@ -110,9 +111,10 @@ def register_user(request):
         form = SignUpForm()
 
     return render(request, "accounts/register.html", {"form": form})
-############################################################################
-#######################view for account activation##########################
-############################################################################
+
+################################################################################################################
+########################################view for account activation##########################@##################
+################################################################################################################
 
 @csrf_protect
 def activate(request, uidb64, token):
@@ -132,8 +134,10 @@ def activate(request, uidb64, token):
         return redirect('authentication:login')
     else:
         return render(request, 'accounts/activation_failed.html')
-
-#login view for registered users
+    
+#########################################################################################################
+####################################login view for registered users######################################
+#########################################################################################################
 @csrf_protect
 def login_view(request):
     form = LoginForm(request.POST or None)
@@ -142,6 +146,7 @@ def login_view(request):
             username = form.cleaned_data.get("username")
             password = form.cleaned_data.get("password")
             remember_me = form.cleaned_data.get("remember_me")
+            request.session['last_activity'] = timezone.now().isoformat()
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
@@ -155,9 +160,9 @@ def login_view(request):
 
     return render(request, "accounts/login.html", {"form": form})
 
-###################################################################
-################### logout view for users###########################
-###################################################################
+##################################################################################################
+####################################logout view for users##########################################
+##################################################################################################
 
 @login_required
 def user_logout(request):
@@ -170,52 +175,6 @@ def user_logout(request):
             messages.info(request, "Logout cancelled.")
             return redirect('authentication:profile') 
     return render(request, 'accounts/logout_confirm.html')
-
-
-# def profile_view(request):
-#     user = get_object_or_404(CustomUser, pk=request.user.pk)
-#     form = UserProfileForm(request.POST or None, request.FILES or None, instance=user)
-#     context = {'form': form, 'page_title': 'View/Edit Profile'}
-
-#     if request.method == 'POST':
-#         try:
-#             if form.is_valid():
-#                 first_name = form.cleaned_data.get('first_name')
-#                 last_name = form.cleaned_data.get('last_name')
-#                 username = form.cleaned_data.get('username')
-#                 organisation_name = form.cleaned_data.get('organisation_name')
-#                 bio = form.changed_data.get('bio')
-#                 # password = form.cleaned_data.get('password') or None
-#                 address = form.cleaned_data.get('address')
-#                 gender = form.cleaned_data.get('gender')
-#                 profile_pic = request.FILES.get('profile_pic') or None
-                
-#                 # if password:
-#                 #     user.set_password(password)
-#                 if profile_pic:
-#                     fs = FileSystemStorage()
-#                     filename = fs.save(profile_pic.name, profile_pic)
-#                     profile_pic_url = fs.url(filename)
-#                     user.profile_pic = profile_pic_url
-
-#                 user.first_name = first_name
-#                 user.last_name = last_name
-#                 user.username = username
-#                 user.organisation_name = organisation_name
-#                 user.address = address
-#                 user.gender = gender
-#                 user.bio = bio
-#                 user.save()
-                
-#                 messages.success(request, "Your profile has been updated successfully!.")
-#                 return redirect(reverse('authentication:profile'))
-#             else:
-#                 messages.error(request, "Invalid Data Provided")
-#         except Exception as e:
-#             messages.error(request, "Error Occurred While Updating Profile " + str(e))
-
-#     context = {'form': form, 'user': request.user}
-#     return render(request, 'accounts/profile.html', context)
 
 ###############################################################################################
 #############################view for the profile editing and view##############################
@@ -295,7 +254,6 @@ def change_password_view(request):
             return redirect("authentication:profile")
         else:
             pass
-            # messages.error(request, "Please correct the error(s) below. ")
     else:
         form = PasswordChangeForm(request.user)
     return render(
@@ -305,26 +263,9 @@ def change_password_view(request):
             "form": form,
         },
     )
-
-# def change_password_view(request):
-#     if request.method == 'POST':
-#         form = PasswordChangeForm(request.user, request.POST)
-#         if form.is_valid():
-#             try:
-#                 user = form.save()
-#                 update_session_auth_hash(request, user)  # Important to prevent the user from being logged out
-#                 messages.success(request, 'Successfully Changed Your Password')
-#                 return redirect('authentication:profile')
-#             except Exception as e:
-#                 messages.error(request, f'An error occurred: {str(e)}')
-#     else:
-#         form = PasswordChangeForm(request.user)
-    
-#     return render(request, 'registration/change_password.html', {'form': form})
-
-#################################################################################
-###############################contact form view#################################
-#################################################################################
+######################################################################################
+################################## contact form view#################################
+#####################################################################################
 def contact_view(request):
     if request.method == 'POST':
         form = ContactForm(request.POST)
