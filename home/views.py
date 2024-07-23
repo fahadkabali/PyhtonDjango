@@ -90,11 +90,9 @@ def take_assessment(request):
                     else:
                         messages.error(request, f"One or more choices for question {question.id} do not exist.")
                         return redirect('take_assessment')
-
-        # Normalize the score to 100%
         normalized_score = min(100, (total_score / max_possible_score) * 100)
         
-        # Store the normalized score in the session
+        #########################Store the normalized score in the session##########################################
         request.session['assessment_score'] = normalized_score
 
         return redirect('assessment_result')
@@ -247,8 +245,17 @@ def generate_certificate(request):
 ###############################search button ###################################################
 ################################################################################################
 def search_view(request):
+    query = request.POST.get('q', '')
     query = request.GET.get('q', '')
-    results = Question.objects.filter(Q(text__icontains=query))
+    words = query.split()
+    
+    results = []
+    if words:
+        q_objects = Q()
+        for word in words:
+            q_objects |= Q(text__icontains=word)
+        
+        results = Question.objects.filter(q_objects).distinct()
 
     context = {
         'query': query,
