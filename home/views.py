@@ -35,7 +35,7 @@ def index(request):
     total_score = sum(response.total_score() for response in responses)
 
 
-    # Prepare data for charts
+    ############################### Prepare data for charts ############################################
     question_texts = [response.question.text for response in responses]
     scores = [response.total_score() for response in responses]
     question = Question.objects.all()
@@ -52,9 +52,16 @@ def index(request):
 ##########################################view for taking assessment ##########################################
 ###############################################################################################################
 @login_required
+
 def take_assessment(request):
     if request.method == 'POST':
+        # Clear previous responses for this user
+        UserResponse.objects.filter(user=request.user).delete()
+        
         responses = []
+        total_score = 0
+        max_possible_score = sum(Question.objects.all().values_list('max_score', flat=True))
+
         for question in Question.objects.all():
             if question.question_type == Question.SINGLE_CHOICE:
                 choice_id = request.POST.get(f'question_{question.id}')
@@ -65,9 +72,10 @@ def take_assessment(request):
                         response.save()
                         response.selected_choices.add(choice)
                         responses.append(response)
+                        total_score += choice.score
                     except Choice.DoesNotExist:
                         messages.error(request, f"Choice for question {question.id} does not exist.")
-                        return redirect('take_assessment')  # Redirect back to the assessment page
+                        return redirect('take_assessment')
             elif question.question_type == Question.MULTIPLE_CHOICE:
                 choice_ids = request.POST.getlist(f'question_{question.id}')
                 if choice_ids:
@@ -77,10 +85,17 @@ def take_assessment(request):
                     if choices.exists():
                         for choice in choices:
                             response.selected_choices.add(choice)
+                            total_score += choice.score
                         responses.append(response)
                     else:
                         messages.error(request, f"One or more choices for question {question.id} do not exist.")
-                        return redirect('take_assessment')  # Redirect back to the assessment page
+                        return redirect('take_assessment')
+
+        # Normalize the score to 100%
+        normalized_score = min(100, (total_score / max_possible_score) * 100)
+        
+        # Store the normalized score in the session
+        request.session['assessment_score'] = normalized_score
 
         return redirect('assessment_result')
 
@@ -92,7 +107,7 @@ def take_assessment(request):
 #####################################################################################################################
 @login_required
 def assessment_result(request):
-    responses = UserResponse.objects.filter(user=request.user)
+    responses = UserResponse.objects.filter(user=request.user).order_by('-submitted_at')
     total_score = sum(response.total_score() for response in responses)
     
     if total_score > 80:
@@ -130,7 +145,9 @@ def assessment_result(request):
         ]
 
 
-    # Prepare data for charts
+    ############################### Prepare data for charts##############################################
+    responses = UserResponse.objects.filter(user=request.user).order_by('-submitted_at')
+    
     question_texts = [response.question.text for response in responses]
     scores = [response.total_score() for response in responses]
 
@@ -156,7 +173,7 @@ def generate_certificate(request):
     score_text = ""
     score_color = ""
 
-    # Determine score text and color
+    ########################## Determine score text and color#####################################
     if total_score > 80:
         score_text = "Advanced"
         score_color = "green"
@@ -170,16 +187,16 @@ def generate_certificate(request):
         score_text = "Weak"
         score_color = "red"
 
-    # Open the certificate template
+    ############################# Open the certificate template###############################
     template_path = os.path.join(settings.STATIC_ROOT, 'milima.png')
     certificate = Image.open(template_path)
     draw = ImageDraw.Draw(certificate)
 
-    # Load font
+    ############################## Load font##############################################
     font_path = os.path.join(settings.STATIC_ROOT, 'open-sans.bold.ttf')
     font = ImageFont.truetype(font_path, 60)
 
-    # Coordinates for the text
+    ################################ Coordinates for the text##############################
     coordinates = {
         'fullname': (890, 1522),
         'email': (890, 1590),
@@ -189,16 +206,17 @@ def generate_certificate(request):
         'score_circle': (688, 2096)
     }
     total_score_with_percentage = f"{total_score} %"
-    # Add text to the certificate
+
+    #########################Add text to the certificate###########################################
     draw.text(coordinates['fullname'], fullname, fill="black", font=font)
     draw.text(coordinates['email'], email, fill="black", font=font)
     draw.text(coordinates['organisation_name'], organisation_name, fill="black", font=font)
     draw.text(coordinates['total_score'], str(total_score_with_percentage), fill="black", font=font)
     draw.text(coordinates['score_text'], score_text, fill=score_color, font=font)
 
-    # Save the certificate to a BytesIO object
+    #######################Save the certificate to a BytesIO object###################################
     circle_center = coordinates['score_circle']
-    circle_radius = 135  # radius of the circle
+    circle_radius = 135
     draw.ellipse(
         (circle_center[0] - circle_radius, circle_center[1] - circle_radius,
          circle_center[0] + circle_radius, circle_center[1] + circle_radius),
@@ -208,7 +226,7 @@ def generate_certificate(request):
     certificate.save(image_buffer, format='PNG')
     image_buffer.seek(0)
 
-    # Create a PDF with ReportLab
+    ##############################Create a PDF with ReportLab##########################################
     pdf_buffer = BytesIO()
     c = canvas.Canvas(pdf_buffer, pagesize=letter)
     image_file_path = os.path.join(settings.MEDIA_ROOT, f'certificate_{user.username}.png')
@@ -220,7 +238,7 @@ def generate_certificate(request):
     c.save()
     pdf_buffer.seek(0)
 
-    # Return the PDF as a downloadable file
+    ###########################Return the PDF as a downloadable file########################################
     response = HttpResponse(pdf_buffer, content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename=certificate_{user.username}.pdf'
     return response
