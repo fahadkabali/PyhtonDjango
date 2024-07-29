@@ -131,7 +131,7 @@
       interlacedColor: "rgba(1,77,101,.2)",
 	  gridColor: "rgba(1,77,101,.1)",
       includeZero: true,
-      maximum: 5
+      maximum: 14
     },
     toolTip: {
       shared: true,
@@ -212,50 +212,6 @@
     }]
   });
   pieChart.render();
-
-  var areaChart = new CanvasJS.Chart("areaChart", {
-    animationEnabled: true,
-    exportEnabled: true,
-    // theme: "dark2",
-    title: {
-      text: "Scores per Question"
-    },
-    axisX: {
-    lineColor: "rgba(0, 0, 0, .125)",
-    labelFontColor: "rgba(0, 0, 0, .5)",
-    tickColor: "rgba(0, 0, 0, .125)",
-    },
-    axisY: {
-    gridColor: "rgba(0, 0, 0, .125)",
-    lineColor: "rgba(0, 0, 0, .125)",
-    labelFontColor: "rgba(0, 0, 0, .5)",
-    tickColor: "rgba(0, 0, 0, .125)",
-    includeZero: true,
-    maximum: 6
-    },
-    toolTip: {
-    shared: true,
-    content: "{name}: {y} - {label}"
-
-    },
-    data: [{
-      type: "area",
-      name: "Score per Question",
-      showInLegend: true,
-      fillOpacity: 0.25,
-      markerSize: 10,
-      markerBorderThickness: 2,
-      markerBorderColor: "white",        
-      color: "rgb(2, 117, 216)",
-      legendMarkerType: "square",
-      dataPoints: scores.map((score, index) => ({
-      y: score,
-      label: shortLabels[index],
-      name: questionTexts[index]
-      }))
-    }]
-  });
-  areaChart.render();
 
 </script>
 {% endblock javascripts %}
