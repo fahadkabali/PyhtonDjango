@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from CSAT import settings
+from django.conf import settings
+
+
 
 class Question(models.Model):
     SINGLE_CHOICE = 'SC'
@@ -43,27 +46,14 @@ class UserResponse(models.Model):
     def total_score(self):
         return sum([choice.score for choice in self.selected_choices.all()])
 
-    # def __str__(self):
-    #     return f"Response to {self.question.text} by {self.user.username}"
+class AssessmentHistory(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    score = models.FloatField()
+    result_text = models.CharField(max_length=20)
+    date_taken = models.DateTimeField(auto_now_add=True)
 
-    # def calculate_score(self):
-    #     if self.question.question_type == Question.SINGLE_CHOICE:
-    #         if self.selected_choices.exists():
-    #             return self.selected_choices.first().percentage or 0
-    #     elif self.question.question_type == Question.MULTIPLE_CHOICE:
-    #         return sum(choice.percentage for choice in self.selected_choices.all())
-    #     return 0
+    class Meta:
+        ordering = ['-date_taken']
 
-    # def calculate_total_score(responses):
-    #     total_score = sum(response.calculate_score() for response in responses)
-    #     return total_score
-
-    # def get_feedback(score):
-    #     if score > 80:
-    #         return "Advanced"
-    #     elif 60 < score <= 80:
-    #         return "Average"
-    #     elif 40 < score <= 60:
-    #         return "Basic"
-    #     else:
-    #         return "Weak"
+    def __str__(self):
+        return f"{self.user.username} - {self.score} - {self.date_taken}"

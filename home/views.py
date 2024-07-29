@@ -18,6 +18,8 @@ from reportlab.pdfgen import canvas
 from io import BytesIO
 import os
 from django.db.models import Q
+from .models import AssessmentHistory
+
 
 
 
@@ -142,6 +144,11 @@ def assessment_result(request):
             "   * Ensure compliance with company security standards, policies, and procedures."
         ]
 
+    AssessmentHistory.objects.create(
+        user=request.user,
+        score=total_score,
+        result_text=result['text']
+    )
 
     ############################### Prepare data for charts##############################################
     responses = UserResponse.objects.filter(user=request.user).order_by('-submitted_at')
@@ -185,16 +192,16 @@ def generate_certificate(request):
         score_text = "Weak"
         score_color = "red"
 
-    ############################# Open the certificate template###############################
+    ############################# Open the certificate template######################################
     template_path = os.path.join(settings.STATIC_ROOT, 'milima.png')
     certificate = Image.open(template_path)
     draw = ImageDraw.Draw(certificate)
 
-    ############################## Load font##############################################
+    ############################## Load font#########################################################
     font_path = os.path.join(settings.STATIC_ROOT, 'open-sans.bold.ttf')
     font = ImageFont.truetype(font_path, 60)
 
-    ################################ Coordinates for the text##############################
+    ################################ Coordinates for the text#########################################
     coordinates = {
         'fullname': (890, 1522),
         'email': (890, 1590),
@@ -272,3 +279,17 @@ def question_detail_view(request, question_id):
         'choices': choices,
     }
     return render(request, 'search/question_detail.html', context)
+
+
+##########################################################################################################
+################################### History View ##########################################################
+###########################################################################################################
+
+@login_required
+def assessment_history(request):
+    history = AssessmentHistory.objects.filter(user=request.user)
+    
+    context = {
+        'history': history,
+    }
+    return render(request, 'assessment/assessment_history.html', context)
