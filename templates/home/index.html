@@ -75,7 +75,7 @@
     <div class="container-fluid mt--6">
         <div class="row">
             <div class="col-xl-8">
-                <div class="card bg-primary">
+                <div class="card" style="background-color: #6495ED;">
                     <div class="card-header bg-transparent">
                         <div class="row align-items-center">
                             <div class="col">
@@ -162,36 +162,62 @@
         title: {
             text: "Scores per Question"
         },
-        axisX: {
-            lineColor: "rgba(0, 0, 0, .125)",
-            labelFontColor: "rgba(0, 0, 0, .5)",
-            tickColor: "rgba(0, 0, 0, .125)",
-        },
         axisY: {
-            gridColor: "rgba(0, 0, 0, .125)",
-            lineColor: "rgba(0, 0, 0, .125)",
-            labelFontColor: "rgba(0, 0, 0, .5)",
-            tickColor: "rgba(0, 0, 0, .125)",
-            includeZero: true,
-            maximum: 15,
-            minimum: -1
+      interlacedColor: "rgba(1,77,101,.2)",
+	  gridColor: "rgba(1,77,101,.1)",
+      includeZero: true,
+      maximum: 14
         },
         toolTip: {
-            shared: true,
-            content: "{name}: {y} - {label}"
+        shared: true,
+        content: "{name}: {y} - {label}"
         },
         data: [{
-            type: "area",
-            name: "Score per Question",
-            showInLegend: true,
-            dataPoints: scores.map((score, index) => ({
-                y: score,
-                label: shortLabels[index],
-                name: questionTexts[index]
-            }))
+        type: "bar",
+        name: "Score per Question",
+        showInLegend: true,
+        legendMarkerType: "square",
+        dataPoints: scores.map((score, index) => ({
+            y: score,
+            label: shortLabels[index],
+            name: questionTexts[index]
+        }))
         }]
     });
     areaChart.render();
+
+
+    var barChart = new CanvasJS.Chart("barChart", {
+    animationEnabled: true,
+    exportEnabled: true,
+    theme: "light1",
+    title: {
+      text: "Scores per Question"
+    },
+   
+    axisY: {
+      interlacedColor: "rgba(1,77,101,.2)",
+	  gridColor: "rgba(1,77,101,.1)",
+      includeZero: true,
+      maximum: 14
+    },
+    toolTip: {
+      shared: true,
+      content: "{name}: {y} - {label}"
+    },
+    data: [{
+      type: "bar",
+      name: "Score per Question",
+      showInLegend: true,
+      legendMarkerType: "square",
+      dataPoints: scores.map((score, index) => ({
+        y: score,
+        label: shortLabels[index],
+        name: questionTexts[index]
+      }))
+    }]
+  });
+  barChart.render();
 
 </script>
 {% endblock javascripts %}
