@@ -18,6 +18,7 @@
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date</th>
                                     <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Score</th>
                                     <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Result</th>
+                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Certificate</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -31,10 +32,17 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <p class="text-xs font-weight-bold mb-0">{{ entry.score }} %</p>
+                                        <p class="text-xs font-weight-bold mb-0">{{ entry.score }}</p>
                                     </td>
                                     <td class="align-middle text-center text-sm">
                                         <span class="badge badge-sm bg-gradient-success">{{ entry.result_text }}</span>
+                                    </td>
+                                    <td class="align-middle text-center text-sm">
+                                        {% if entry.certificate %}
+                                            <a href="{{ entry.certificate.url }}" class="btn btn-sm btn-primary" download>Download</a>
+                                        {% else %}
+                                            <span class="text-secondary">Not available</span>
+                                        {% endif %}
                                     </td>
                                 </tr>
                                 {% endfor %}

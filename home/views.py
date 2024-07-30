@@ -259,7 +259,7 @@ def generate_certificate(request):
         #################################################Save the new certificate#######################################################
         history_entry.certificate.save(f'certificate_{request.user.username}.pdf', content)
     else:
-        ##############################If there's no existing entry, create a new one
+        ##############################If there's no existing entry, create a new one######################################################
         history_entry = AssessmentHistory.objects.create(
             user=request.user,
             score=total_score,
@@ -270,7 +270,7 @@ def generate_certificate(request):
 
     ###########################Return the PDF as a downloadable file########################################
     response = HttpResponse(pdf_buffer, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename=certificate_{user.username}.pdf'
+    response['Content-Disposition'] = f'attachment; filename=certificate_{request.user.username}.pdf'
     return response
 
 ############################################################################################################
