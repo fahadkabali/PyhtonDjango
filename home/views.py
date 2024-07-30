@@ -19,6 +19,8 @@ from io import BytesIO
 import os
 from django.db.models import Q
 from .models import AssessmentHistory
+from django.core.files.base import ContentFile
+
 
 
 
@@ -96,7 +98,7 @@ def take_assessment(request):
         
         #########################Store the normalized score in the session##########################################
         request.session['assessment_score'] = normalized_score
-
+        request.session['new_assessment_completed'] = True
         return redirect('assessment_result')
 
     questions = Question.objects.all()
@@ -143,19 +145,19 @@ def assessment_result(request):
             "   * Encourage a culture where security considerations are integrated into daily decision-making.",
             "   * Ensure compliance with company security standards, policies, and procedures."
         ]
-
-    AssessmentHistory.objects.create(
-        user=request.user,
-        score=total_score,
-        result_text=result['text']
-    )
+    if request.session.pop('new_assessment_completed', False):
+        AssessmentHistory.objects.create(
+            user=request.user,
+            score=total_score,
+            result_text=result['text']
+        )
 
     ############################### Prepare data for charts##############################################
     responses = UserResponse.objects.filter(user=request.user).order_by('-submitted_at')
     
     question_texts = [response.question.text for response in responses]
     scores = [response.total_score() for response in responses]
-
+    request.session.pop('assessment_score', None)
     return render(request, 'assessment/assessment_result.html', {
         'result': result,
         'recommendations': recommendations,
@@ -242,6 +244,29 @@ def generate_certificate(request):
     c.showPage()
     c.save()
     pdf_buffer.seek(0)
+    content = ContentFile(pdf_buffer.read())
+    
+    #################################Get the latest AssessmentHistory entry for this user#############################
+    history_entry = AssessmentHistory.objects.filter(user=request.user).order_by('-date_taken').first()
+    
+    if history_entry:
+        ################################If there's an existing entry, update it#################################################
+        if history_entry.certificate:
+            ########################Delete the old certificate file if it exists############################################
+            if os.path.isfile(history_entry.certificate.path):
+                os.remove(history_entry.certificate.path)
+        
+        #################################################Save the new certificate#######################################################
+        history_entry.certificate.save(f'certificate_{request.user.username}.pdf', content)
+    else:
+        ##############################If there's no existing entry, create a new one
+        history_entry = AssessmentHistory.objects.create(
+            user=request.user,
+            score=total_score,
+            result_text=score_text,
+        )
+        history_entry.certificate.save(f'certificate_{request.user.username}.pdf', content)
+
 
     ###########################Return the PDF as a downloadable file########################################
     response = HttpResponse(pdf_buffer, content_type='application/pdf')
