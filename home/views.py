@@ -210,7 +210,7 @@ def generate_certificate(request):
     }
     total_score_with_percentage = f"{total_score} %"
 
-    ######################################Add text to the certificate################################################
+    ####################################### Add text to the certificate################################################
     draw.text(coordinates['fullname'], fullname, fill="black", font=font)
     draw.text(coordinates['email'], email, fill="black", font=font)
     draw.text(coordinates['organisation_name'], organisation_name, fill="black", font=font)
