@@ -1,77 +1,74 @@
-{% extends "layouts/base.html" %}
+{% extends 'layouts/base.html' %}
 
-{% block title %} Assessment History {% endblock %}
+{% block title %} CSAT: Assessment History {% endblock title %}
 
 {% block content %}
-<div class="header bg-default pb-6">
+  <div class="header bg-default pb-6">
     <div class="container-fluid">
       <div class="header-body">
         <div class="row align-items-center py-4">
           <div class="col-lg-6 col-7">
-            <h6 class="h2 text-white d-inline-block mb-0">Assessment Result</h6>
+            <h6 class="h2 text-white d-inline-block mb-0">Assessment History</h6>
             <nav aria-label="breadcrumb" class="d-none d-md-inline-block ml-md-4">
               <ol class="breadcrumb breadcrumb-links breadcrumb-dark">
-                <li class="breadcrumb-item"><a href="#"><i class="fa-solid fa-square-poll-vertical"></i></a></li>
-                <li class="breadcrumb-item"><a href="{% url 'assessment_result' %}">Assessment</a></li>
-                <li class="breadcrumb-item active" aria-current="page">Results</li>
+                <li class="breadcrumb-item"><a href="#"><i class="fa-solid fa-landmark"></i></a></li>
+                <li class="breadcrumb-item"><a href="#">Assessment</a></li>
+                <li class="breadcrumb-item active" aria-current="page">History</li>
               </ol>
             </nav>
           </div>
         </div>
       </div>
     </div>
-</div>
-<div class="container-fluid mt--5">
+  </div>  
+  <!-- Page content -->
+  <div class="container-fluid mt--6">
     <div class="row">
-      <div class="col-12">
-        <div class="card bg-light.bg-gradient">
-          <div class="card-header bg-transparent">
-            <div class="row align-items-center">
-                <div class="card-header pb-0">
-                    <h6>Assessment History</h6>
-                </div>
-                <div class="card-body px-0 pt-0 pb-2">
-                    <div class="table-responsive p-0">
-                        <table class="table align-items-center mb-0">
-                            <thead>
-                                <tr>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date</th>
-                                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Score</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Result</th>
-                                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Certificate</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for entry in history %}
-                                <tr>
-                                    <td>
-                                        <div class="d-flex px-2 py-1">
-                                            <div class="d-flex flex-column justify-content-center">
-                                                <h6 class="mb-0 text-sm">{{ entry.date_taken|date:"F d, Y H:i" }}</h6>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <p class="text-xs font-weight-bold mb-0">{{ entry.score }}</p>
-                                    </td>
-                                    <td class="align-middle text-center text-sm">
-                                        <span class="badge badge-sm bg-gradient-success">{{ entry.result_text }}</span>
-                                    </td>
-                                    <td class="align-middle text-center text-sm">
-                                        {% if entry.certificate %}
-                                            <a href="{{ entry.certificate.url }}" class="btn btn-sm btn-primary" download>Download</a>
-                                        {% else %}
-                                            <span class="text-secondary">Not available</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+      <div class="col">
+        <div class="card mt-4">
+          <div class="card-body px-0 pt-0 pb-2">
+            <div class="table-responsive p-0">
+              <table class="table align-items-center mb-0">
+                <thead>
+                  <tr>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date</th>
+                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Score</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Result</th>
+                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Certificate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for entry in history %}
+                  <tr>
+                    <td>
+                      <div class="d-flex px-2 py-1">
+                        <div class="d-flex flex-column justify-content-center">
+                          <h6 class="mb-0 text-sm">{{ entry.date_taken|date:"F d, Y H:i" }}</h6>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <p class="text-xs font-weight-bold mb-0">{{ entry.score }} %</p>
+                    </td>
+                    <td class="align-middle text-center text-sm">
+                      <span class="badge badge-sm bg-gradient-{{ entry.score_color }}">{{ entry.result_text }}</span>
+                    </td>
+                    <td class="align-middle text-center text-sm">
+                      {% if entry.certificate %}
+                        <a href="{{ entry.certificate.url }}" class="btn btn-sm btn-primary" download>Download</a>
+                      {% else %}
+                        <span class="text-secondary">Not available</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
             </div>
+          </div>
         </div>
+      </div>
     </div>
-</div>
-{% endblock content %}
+  </div>
+  {% include "includes/footer.html" %}
+{% endblock %}

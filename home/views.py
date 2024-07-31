@@ -20,9 +20,7 @@ import os
 from django.db.models import Q
 from .models import AssessmentHistory
 from django.core.files.base import ContentFile
-
-
-
+from reportlab.lib.utils import ImageReader
 
 
 
@@ -177,10 +175,8 @@ def generate_certificate(request):
     email = user.email
     organisation_name = user.organisation_name
     total_score = sum(response.total_score() for response in responses)
-    score_text = ""
-    score_color = ""
 
-    ########################## Determine score text and color#####################################
+    ###############################Determine score text and color######################################
     if total_score > 80:
         score_text = "Advanced"
         score_color = "green"
@@ -194,18 +190,18 @@ def generate_certificate(request):
         score_text = "Weak"
         score_color = "red"
 
-    ############################# Open the certificate template######################################
+    #########################################Open the certificate template##################################
     template_path = os.path.join(settings.STATIC_ROOT, 'milima.png')
     certificate = Image.open(template_path)
     draw = ImageDraw.Draw(certificate)
 
-    ############################## Load font#########################################################
+    ####################################### Load font############################################################
     font_path = os.path.join(settings.STATIC_ROOT, 'open-sans.bold.ttf')
     font = ImageFont.truetype(font_path, 60)
 
-    ################################ Coordinates for the text#########################################
+    ####################################Coordinates for the text##################################################
     coordinates = {
-        'fullname': (890, 1522),
+        'fullname': (890, 1520),
         'email': (890, 1590),
         'organisation_name': (890, 1665),
         'total_score': (2164, 2190),
@@ -214,14 +210,14 @@ def generate_certificate(request):
     }
     total_score_with_percentage = f"{total_score} %"
 
-    #########################Add text to the certificate###########################################
+    ######################################Add text to the certificate################################################
     draw.text(coordinates['fullname'], fullname, fill="black", font=font)
     draw.text(coordinates['email'], email, fill="black", font=font)
     draw.text(coordinates['organisation_name'], organisation_name, fill="black", font=font)
     draw.text(coordinates['total_score'], str(total_score_with_percentage), fill="black", font=font)
     draw.text(coordinates['score_text'], score_text, fill=score_color, font=font)
 
-    #######################Save the certificate to a BytesIO object###################################
+    ##################################Draw score circle#########################################################
     circle_center = coordinates['score_circle']
     circle_radius = 135
     draw.ellipse(
@@ -229,53 +225,43 @@ def generate_certificate(request):
          circle_center[0] + circle_radius, circle_center[1] + circle_radius),
         fill=score_color
     )
+
+    ####################################Save the certificate to a BytesIO object#########################################
     image_buffer = BytesIO()
     certificate.save(image_buffer, format='PNG')
     image_buffer.seek(0)
 
-    ##############################Create a PDF with ReportLab##########################################
+    #######################################Create a PDF with ReportLab######################################################
     pdf_buffer = BytesIO()
     c = canvas.Canvas(pdf_buffer, pagesize=letter)
-    image_file_path = os.path.join(settings.MEDIA_ROOT, f'certificate_{user.username}.png')
-    image_file = open(image_file_path, 'wb')
-    image_file.write(image_buffer.read())
-    image_file.close()
-    c.drawImage(image_file_path, 0, 0, width=letter[0], height=letter[1])
+    c.drawImage(ImageReader(image_buffer), 0, 0, width=letter[0], height=letter[1])
     c.showPage()
     c.save()
-    pdf_buffer.seek(0)
-    content = ContentFile(pdf_buffer.read())
-    
-    #################################Get the latest AssessmentHistory entry for this user#############################
-    history_entry = AssessmentHistory.objects.filter(user=request.user).order_by('-date_taken').first()
-    
-    if history_entry:
-        ################################If there's an existing entry, update it#################################################
-        if history_entry.certificate:
-            ########################Delete the old certificate file if it exists############################################
-            if os.path.isfile(history_entry.certificate.path):
-                os.remove(history_entry.certificate.path)
-        
-        #################################################Save the new certificate#######################################################
-        history_entry.certificate.save(f'certificate_{request.user.username}.pdf', content)
-    else:
-        ##############################If there's no existing entry, create a new one######################################################
-        history_entry = AssessmentHistory.objects.create(
-            user=request.user,
-            score=total_score,
-            result_text=score_text,
-        )
-        history_entry.certificate.save(f'certificate_{request.user.username}.pdf', content)
 
+    ###########################################Get the PDF content##########################################################
+    pdf_content = pdf_buffer.getvalue()
+    pdf_buffer.close()
 
-    ###########################Return the PDF as a downloadable file########################################
-    response = HttpResponse(pdf_buffer, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename=certificate_{request.user.username}.pdf'
+    ##################################Save to AssessmentHistory############################################################
+    history_entry, created = AssessmentHistory.objects.get_or_create(
+        user=request.user,
+        score=total_score,
+        result_text=score_text,
+        score_color=score_color
+    )
+
+    ##############################################Save the certificate########################################################
+    certificate_filename = f'certificate_{request.user.username}_{history_entry.id}.pdf'
+    history_entry.certificate.save(certificate_filename, ContentFile(pdf_content), save=True)
+
+    ######################################Prepare the response###############################################################
+    response = HttpResponse(pdf_content, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{certificate_filename}"'
+    
     return response
-
-############################################################################################################
-###############################search button ###############################################################
-############################################################################################################
+#################################################################################################################################
+##################################################search button ###############################################################
+#################################################################################################################################
 def search_view(request):
     query = request.POST.get('q', '')
     query = request.GET.get('q', '')

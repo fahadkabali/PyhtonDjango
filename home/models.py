@@ -49,13 +49,13 @@ class UserResponse(models.Model):
 
 
 def certificate_upload_path(instance, filename):
-    # File will be uploaded to MEDIA_ROOT/certificates/user_<id>/<filename>
     return f'certificates/user_{instance.user.id}/{filename}'
 
 class AssessmentHistory(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     score = models.FloatField()
     result_text = models.CharField(max_length=20)
+    score_color = models.CharField(max_length=20)
     date_taken = models.DateTimeField(auto_now_add=True)
     certificate = models.FileField(upload_to= certificate_upload_path, null=True, blank=True)
 
@@ -66,9 +66,8 @@ class AssessmentHistory(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.score} - {self.date_taken}"
     
-    def delete(self, *args, **kwargs):
-        # Delete the certificate file when the AssessmentHistory instance is deleted
-        if self.certificate:
-            if os.path.isfile(self.certificate.path):
-                os.remove(self.certificate.path)
-        super(AssessmentHistory, self).delete(*args, **kwargs)
+    # def delete(self, *args, **kwargs):
+    #     if self.certificate:
+    #         if os.path.isfile(self.certificate.path):
+    #             os.remove(self.certificate.path)
+    #     super(AssessmentHistory, self).delete(*args, **kwargs)
