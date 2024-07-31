@@ -63,7 +63,6 @@ def take_assessment(request):
         responses = []
         total_score = 0
         max_possible_score = sum(Question.objects.all().values_list('max_score', flat=True))
-
         for question in Question.objects.all():
             if question.question_type == Question.SINGLE_CHOICE:
                 choice_id = request.POST.get(f'question_{question.id}')
@@ -92,15 +91,14 @@ def take_assessment(request):
                     else:
                         messages.error(request, f"One or more choices for question {question.id} do not exist.")
                         return redirect('take_assessment')
-        normalized_score = min(100, (total_score / max_possible_score) * 100)
-        
-        #########################Store the normalized score in the session##########################################
+        normalized_score = round(min(100, (total_score / max_possible_score) * 100), 1)
+        #########################Store the normalized score in the session ##########################################
         request.session['assessment_score'] = normalized_score
         request.session['new_assessment_completed'] = True
         return redirect('assessment_result')
-
+    
     questions = Question.objects.all()
-    return render(request, 'assessment/take_assessment.html', {'questions': questions})
+    return render(request, 'assessment/take_assessment.html', {'questions': questions,})
 
 #####################################################################################################################
 #####################################Asssessment view################################################################
