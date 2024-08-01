@@ -35,6 +35,8 @@ def index(request):
     user_count = User.objects.count()
     responses = UserResponse.objects.filter(user=request.user)
     total_score = sum(response.total_score() for response in responses)
+    normalized_score = request.session.get('assessment_score', 0)
+
 
 
     ############################### Prepare data for charts ############################################
@@ -47,6 +49,7 @@ def index(request):
         'user': user,
         'question_texts': question_texts,
         'scores': scores,
+        'normalized_score':normalized_score,
         'total_score': total_score,
         'user_count':user_count
     })
@@ -107,18 +110,21 @@ def take_assessment(request):
 def assessment_result(request):
     responses = UserResponse.objects.filter(user=request.user).order_by('-submitted_at')
     total_score = sum(response.total_score() for response in responses)
+    normalized_score = request.session.get('assessment_score', 0)
+
+
     
-    if total_score > 80:
-        result = {'score': total_score, 'text': 'Advanced', 'color': 'green'}
-    elif 60 < total_score <= 80:
-        result = {'score': total_score, 'text': 'Average', 'color': 'blue'}
-    elif 40 < total_score <= 60:
-        result = {'score': total_score, 'text': 'Basic', 'color': 'orange'}
+    if normalized_score > 80:
+        result = {'score': total_score, 'text': 'Advanced', 'color': '#32EE32', 'class':'success'}
+    elif 60 < normalized_score <= 80:
+        result = {'score': total_score, 'text': 'Average', 'color': '#004400', 'class':'primary'}
+    elif 40 < normalized_score <= 60:
+        result = {'score': total_score, 'text': 'Basic', 'color': '#FFA400', 'class':'warning'}
     else:
-        result = {'score': total_score, 'text': 'Weak', 'color': 'red'}
+        result = {'score': total_score, 'text': 'Weak', 'color': '#FF0000', 'class':'danger'}
 
     recommendations = []
-    if total_score < 80:
+    if normalized_score < 80:
         recommendations = [
             "Implement stronger password policies",
             "Conduct regular security audits",
@@ -144,8 +150,8 @@ def assessment_result(request):
     if request.session.pop('new_assessment_completed', False):
         AssessmentHistory.objects.create(
             user=request.user,
-            score=total_score,
-            result_text=result['text']
+            score=normalized_score,
+            result_text=result['text'],
         )
 
     ############################### Prepare data for charts##############################################
@@ -153,13 +159,13 @@ def assessment_result(request):
     
     question_texts = [response.question.text for response in responses]
     scores = [response.total_score() for response in responses]
-    request.session.pop('assessment_score', None)
     return render(request, 'assessment/assessment_result.html', {
         'result': result,
         'recommendations': recommendations,
         'question_texts': question_texts,
+        'total_score': total_score,
         'scores': scores,
-        'total_score': total_score
+        'normalized_score': normalized_score
     })
 
 ################################################################################################
@@ -172,21 +178,28 @@ def generate_certificate(request):
     fullname = user.fullname
     email = user.email
     organisation_name = user.organisation_name
-    total_score = sum(response.total_score() for response in responses)
+    normalized_score = request.session.get('assessment_score', 0)
+
 
     ###############################Determine score text and color######################################
-    if total_score > 80:
+    if normalized_score > 80:
         score_text = "Advanced"
-        score_color = "green"
-    elif 60 < total_score <= 80:
+        score_color = "#32EE32" 
+        score_class = "success"
+
+    elif 60 < normalized_score <= 80:
         score_text = "Average"
-        score_color = "blue"
-    elif 40 < total_score <= 60:
+        score_color = "#004400" 
+        score_class = "primary"
+
+    elif 40 < normalized_score <= 60:
         score_text = "Basic"
-        score_color = "orange"
+        score_color = "#FFA400" 
+        score_class = "warning"
     else:
         score_text = "Weak"
-        score_color = "red"
+        score_color = "#FF0000"  
+        score_class = "danger"
 
     #########################################Open the certificate template##################################
     template_path = os.path.join(settings.STATIC_ROOT, 'milima.png')
@@ -206,13 +219,13 @@ def generate_certificate(request):
         'score_text': (1500, 2035),
         'score_circle': (688, 2096)
     }
-    total_score_with_percentage = f"{total_score} %"
+    total_score_with_percentage = f"{normalized_score} %"
 
     ####################################### Add text to the certificate################################################
     draw.text(coordinates['fullname'], fullname, fill="black", font=font)
     draw.text(coordinates['email'], email, fill="black", font=font)
     draw.text(coordinates['organisation_name'], organisation_name, fill="black", font=font)
-    draw.text(coordinates['total_score'], str(total_score_with_percentage), fill="black", font=font)
+    draw.text(coordinates['total_score'], str(total_score_with_percentage), fill=score_color, font=font)
     draw.text(coordinates['score_text'], score_text, fill=score_color, font=font)
 
     ##################################Draw score circle#########################################################
@@ -243,9 +256,9 @@ def generate_certificate(request):
     ##################################Save to AssessmentHistory############################################################
     history_entry, created = AssessmentHistory.objects.get_or_create(
         user=request.user,
-        score=total_score,
+        score=normalized_score,
         result_text=score_text,
-        score_color=score_color
+        score_color=score_color,
     )
 
     ##############################################Save the certificate########################################################

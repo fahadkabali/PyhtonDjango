@@ -51,7 +51,7 @@
                                 <div class="row">
                                     <div class="col">
                                         <h5 class="card-title text-uppercase text-muted mb-0">Performance</h5>
-                                        <span class=" h2 font-weight-bold mb-0 text-success mr-2"><i class="fa-solid fa-star"></i> {{ total_score }}%</span>
+                                        <span class=" h2 font-weight-bold mb-0 text-success mr-2"><i class="fa-solid fa-star"></i> {{ normalized_score }}%</span>
                                     </div>
                                     <div class="col-auto">
                                         <div class="icon icon-shape bg-gradient-info text-white rounded-circle shadow">
@@ -131,6 +131,7 @@
     var questionTexts = {{ question_texts|safe }};
     var scores = {{ scores|safe }};
     var totalScore = {{ total_score|safe }};
+    var normalized_score= {{normalized_score|safe}}
 
     var shortLabels = questionTexts.map((_, index) => 'Question ' + (index + 1));
 
@@ -148,8 +149,8 @@
             legendText: "{label}",
             toolTipContent: "<b>{label}</b>: {y} (#percent%)",
             dataPoints: [
-                { y: totalScore, label: "Score" },
-                { y: 100 - totalScore, label: "Remaining" }
+                { y: normalized_score, label: "Score" },
+                { y: 100 - normalized_score, label: "Remaining" }
             ]
         }]
     });

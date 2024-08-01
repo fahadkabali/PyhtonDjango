@@ -51,13 +51,32 @@
                       <p class="text-xs font-weight-bold mb-0">{{ entry.score }} %</p>
                     </td>
                     <td class="align-middle text-center text-sm">
-                      <span class="badge badge-sm bg-gradient-{{ entry.score_color }}">{{ entry.result_text }}</span>
+                      <span class="badge badge-sm" style="
+                      display: inline-block;
+                      padding: 0.25em 0.4em;
+                      font-size: 70%;
+                      font-weight: 700;
+                      line-height: 2;
+                      width: 5rem;
+                      text-align: center;
+                      white-space: nowrap;
+                      vertical-align: baseline;
+                      border-radius: 0.5rem;
+                      color: #fff;
+                      background-image: linear-gradient(195deg, 
+                        {% if entry.result_text == 'Advanced' %}#32CD32 10%, #2ecc71 100%
+                        {% elif entry.result_text == 'Average' %}#006400 10%, #00a86b 100%
+                        {% elif entry.result_text == 'Basic' %}#FFA500 10%, #f39c12 100%
+                        {% else %}#FF0000 10%, #e74c3c 100%{% endif %});
+                    ">
+                      {{ entry.result_text }}
+                    </span>
                     </td>
                     <td class="align-middle text-center text-sm">
                       {% if entry.certificate %}
                         <a href="{{ entry.certificate.url }}" class="btn btn-sm btn-primary" download>Download</a>
                       {% else %}
-                        <span class="text-secondary">Not available</span>
+                        <span class="text-secondary text-danger">Not available</span>
                       {% endif %}
                     </td>
                   </tr>

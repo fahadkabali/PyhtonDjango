@@ -39,9 +39,9 @@
           </div>
         </div>
         <div class="card-body" style="color: {{ result.color }}">
-          <p>Your score: {{ result.score }} %</p>
+          <p>Your score: {{ normalized_score  }} %</p>
           <p>{{ result.text }}</p>
-          {% if result.score < 80 %}
+          {% if normalized_score  < 80 %}
             <p>Recommendations for improvement:</p>
             <ul>
               {% for recommendation in recommendations %}
@@ -115,6 +115,7 @@
   var questionTexts = {{ question_texts|safe }};
   var scores = {{ scores|safe }};
   var totalScore = {{ total_score|safe }};
+  var normalized_score ={{normalized_score | safe}}
 
   var shortLabels = questionTexts.map((_, index) => 'Question ' + (index + 1));
 
@@ -206,8 +207,8 @@
       legendText: "{label}",
       toolTipContent: "<b>{label}</b>: {y} (#percent%)",
       dataPoints: [
-        { y: totalScore, label: "Score" },
-        { y: 100 - totalScore, label: "Remaining" }
+        { y: normalized_score, label: "Score" },
+        { y: 100 - normalized_score, label: "Remaining" }
       ]
     }]
   });
