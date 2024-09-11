@@ -1,0 +1,8 @@
+Django==5.1.1
+python_dotenv==1.0.1
+fontawesomefree==6.6.0
+Pillow==10.4.0
+chardet==5.2.0 
+reportlab==4.2.2
+pycryptodome==3.20.0
+Pyrebase==3.0.27

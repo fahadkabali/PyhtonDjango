@@ -21,6 +21,7 @@
       </div>
     </div>
   </div>  
+
   <!-- Page content -->
   <div class="container-fluid mt--6 rounded">
     <div class="row">
@@ -52,31 +53,31 @@
                     </td>
                     <td class="align-middle text-center text-sm">
                       <span class="badge badge-sm" style="
-                      display: inline-block;
-                      padding: 0.25em 0.4em;
-                      font-size: 70%;
-                      font-weight: 700;
-                      line-height: 2;
-                      width: 5rem;
-                      text-align: center;
-                      white-space: nowrap;
-                      vertical-align: baseline;
-                      border-radius: 0.5rem;
-                      color: #fff;
-                      background-image: linear-gradient(195deg, 
-                        {% if entry.result_text == 'Advanced' %}#32CD32 10%, #2ecc71 100%
-                        {% elif entry.result_text == 'Average' %}#006400 10%, #00a86b 100%
-                        {% elif entry.result_text == 'Basic' %}#FFA500 10%, #f39c12 100%
-                        {% else %}#FF0000 10%, #e74c3c 100%{% endif %});
-                    ">
+                        display: inline-block;
+                        padding: 0.25em 0.4em;
+                        font-size: 70%;
+                        font-weight: 700;
+                        line-height: 2;
+                        width: 5rem;
+                        text-align: center;
+                        white-space: nowrap;
+                        vertical-align: baseline;
+                        border-radius: 0.5rem;
+                        color: #fff;
+                        background-image: linear-gradient(195deg, 
+                          {% if entry.result_text == 'Advanced' %}#32CD32 10%, #2ecc71 100%
+                          {% elif entry.result_text == 'Average' %}#006400 10%, #00a86b 100%
+                          {% elif entry.result_text == 'Basic' %}#FFA500 10%, #f39c12 100%
+                          {% else %}#FF0000 10%, #e74c3c 100%{% endif %});
+                      ">
                       {{ entry.result_text }}
-                    </span>
+                      </span>
                     </td>
                     <td class="align-middle text-center text-sm">
                       {% if entry.certificate %}
-                        <a href="{{ entry.certificate.url }}" class="btn btn-sm btn-primary" download>Download</a>
+                        <a href="{{ entry.certificate.url }}" class="btn btn-sm btn-primary download-cert" data-entry-id="{{ entry.id }}">Download</a>
                       {% else %}
-                        <span class="text-secondary text-danger">Not available</span>
+                        <button class="btn btn-secondary btn-sm generate-cert" data-entry-id="{{ entry.id }}">Generate Certificate</button>
                       {% endif %}
                     </td>
                   </tr>
@@ -89,5 +90,64 @@
       </div>
     </div>
   </div>
+
   {% include "includes/footer.html" %}
+
+  <script>
+    $(document).ready(function() {
+        // Handle certificate download
+        $('.download-cert').click(function(e) {
+            e.preventDefault();
+            var url = $(this).attr('href');
+            var entryId = $(this).data('entry-id');
+            downloadCertificate(url, entryId);
+        });
+
+        // Handle certificate generation
+        $('.generate-cert').click(function() {
+            var entryId = $(this).data('entry-id');
+            generateCertificate(entryId);
+        });
+    });
+
+    // Function to download certificate
+    function downloadCertificate(url, entryId) {
+        $.ajax({
+            url: url,
+            method: 'GET',
+            xhrFields: {
+                responseType: 'blob'
+            },
+            success: function(data) {
+                var a = document.createElement('a');
+                var url = window.URL.createObjectURL(data);
+                a.href = url;
+                a.download = 'certificate_' + entryId + '.pdf';
+                document.body.append(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                a.remove();
+            }
+        });
+    }
+
+    // Function to generate certificate
+    function generateCertificate(entryId) {
+        $.ajax({
+            url: '/generate_certificate/',
+            method: 'POST',
+            data: {
+                entry_id: entryId,
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to generate certificate. Please try again.');
+                }
+            }
+        });
+    }
+  </script>
 {% endblock %}
